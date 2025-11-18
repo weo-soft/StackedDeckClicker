@@ -152,9 +152,6 @@ export class GameStateService {
         })()
       };
       
-      // Update current state reference
-      this.currentState = newState;
-      
         return newState;
       }, true); // Immediate save for deck opening
 
@@ -191,46 +188,44 @@ export class GameStateService {
   async purchaseUpgrade(upgradeType: UpgradeType): Promise<void> {
     return performanceMonitor.trackAsyncInteraction(async () => {
       const state = this.getGameState();
-    const upgrade = state.upgrades.upgrades.get(upgradeType);
+      const upgrade = state.upgrades.upgrades.get(upgradeType);
     
-    if (!upgrade) {
-      throw new Error(ERROR_MESSAGES.INVALID_UPGRADE);
-    }
+      if (!upgrade) {
+        throw new Error(ERROR_MESSAGES.INVALID_UPGRADE);
+      }
 
-    // Check if player can afford
-    if (!upgradeService.canAffordUpgrade(upgrade, state.score)) {
-      throw new InsufficientResourcesError(
-        ERROR_MESSAGES.INSUFFICIENT_SCORE,
-        'INSUFFICIENT_SCORE'
-      );
-    }
+      // Check if player can afford
+      if (!upgradeService.canAffordUpgrade(upgrade, state.score)) {
+        throw new InsufficientResourcesError(
+          ERROR_MESSAGES.INSUFFICIENT_SCORE,
+          'INSUFFICIENT_SCORE'
+        );
+      }
 
-    const cost = upgradeService.calculateUpgradeCost(upgrade);
+      const cost = upgradeService.calculateUpgradeCost(upgrade);
 
-    // Update game state
-    await this.updateGameState((s) => {
-      const newUpgrades = new Map(s.upgrades.upgrades);
-      const updatedUpgrade = { ...upgrade, level: upgrade.level + 1 };
-      newUpgrades.set(upgradeType, updatedUpgrade);
+      // Update game state
+      await this.updateGameState((s) => {
+        const newUpgrades = new Map(s.upgrades.upgrades);
+        const updatedUpgrade = { ...upgrade, level: upgrade.level + 1 };
+        newUpgrades.set(upgradeType, updatedUpgrade);
 
-      const newState = {
-        ...s,
-        score: s.score - cost,
-        upgrades: {
-          upgrades: newUpgrades
-        }
-      };
-      
-      // Update current state reference
-      this.currentState = newState;
+        const newState = {
+          ...s,
+          score: s.score - cost,
+          upgrades: {
+            upgrades: newUpgrades
+          }
+        };
+        
+        return newState;
+      }, true); // Immediate save for upgrade purchase
       
       // Restart auto-opening if auto-opening upgrade was purchased
+      // (Called after state update to ensure this.currentState is set)
       if (upgradeType === 'autoOpening') {
         this.startAutoOpening();
       }
-      
-      return newState;
-    }, true); // Immediate save for upgrade purchase
     });
   }
 
@@ -259,14 +254,12 @@ export class GameStateService {
         customizations: newCustomizations
       };
 
-      // Update current state reference
-      this.currentState = newState;
-
-      // Update canvas customizations
-      canvasService.updateCustomizations(newCustomizations);
-
       return newState;
     }, true); // Immediate save for customization purchase
+    
+    // Update canvas customizations after state is updated
+    const updatedState = this.getGameState();
+    canvasService.updateCustomizations(updatedState.customizations);
   }
 
 

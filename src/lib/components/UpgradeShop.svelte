@@ -33,6 +33,26 @@
     ? new Map(availableUpgrades.map(upgrade => [upgrade.type, upgrade]))
     : new Map<UpgradeType, UpgradeInfo>();
   
+  // Pre-compute cell data to avoid issues with {@const} in each blocks
+  $: cellData = Array.from({ length: TOTAL_CELLS }, (_, cellIndex) => {
+    const upgrade = getUpgradeForCell(cellIndex);
+    const hasUpgrade = upgrade !== null;
+    const upgradeCost = getUpgradeCost(upgrade);
+    const upgradeLevel = hasUpgrade && upgrade ? upgrade.level : 0;
+    const affordable = hasUpgrade && currentScore >= upgradeCost;
+    const unaffordable = hasUpgrade && currentScore < upgradeCost;
+    
+    return {
+      cellIndex,
+      upgrade,
+      hasUpgrade,
+      upgradeCost,
+      upgradeLevel,
+      affordable,
+      unaffordable
+    };
+  });
+  
 
   // Grid dimensions: 8 columns x 5 rows = 40 cells
   const GRID_COLS = 8;
@@ -168,35 +188,30 @@
   {/if}
 
   <div class="upgrades-grid">
-    {#each Array(TOTAL_CELLS) as _, cellIndex}
-      {@const upgrade = getUpgradeForCell(cellIndex)}
-      {@const hasUpgrade = upgrade !== null}
-      {@const upgradeCost = getUpgradeCost(upgrade)}
-      {@const affordable = hasUpgrade && currentScore >= upgradeCost}
-      {@const unaffordable = hasUpgrade && currentScore < upgradeCost}
+    {#each cellData as cell (cell.cellIndex)}
       <div
         class="grid-cell"
-        class:has-upgrade={hasUpgrade}
-        class:affordable={affordable}
-        class:unaffordable={unaffordable}
-        class:empty={!hasUpgrade}
-        on:click={() => handleCellClick(cellIndex)}
-        on:mouseenter={(e) => handleCellHover(e, cellIndex)}
+        class:has-upgrade={cell.hasUpgrade}
+        class:affordable={cell.affordable}
+        class:unaffordable={cell.unaffordable}
+        class:empty={!cell.hasUpgrade}
+        on:click={() => handleCellClick(cell.cellIndex)}
+        on:mouseenter={(e) => handleCellHover(e, cell.cellIndex)}
         on:mouseleave={handleCellLeave}
         on:keydown={(e) => {
-          if ((e.key === 'Enter' || e.key === ' ') && hasUpgrade && affordable) {
+          if ((e.key === 'Enter' || e.key === ' ') && cell.hasUpgrade && cell.affordable) {
             e.preventDefault();
-            handleCellClick(cellIndex);
+            handleCellClick(cell.cellIndex);
           }
         }}
-        role={hasUpgrade ? "button" : "presentation"}
-        tabindex={hasUpgrade && affordable ? 0 : -1}
-        aria-label={hasUpgrade && upgrade ? (affordable ? `Purchase ${getUpgradeTypeName(upgrade.type)} upgrade` : `${getUpgradeTypeName(upgrade.type)} upgrade - Insufficient Chaos Orbs`) : "Empty cell"}
-        aria-disabled={hasUpgrade && !affordable}
+        role={cell.hasUpgrade ? "button" : "presentation"}
+        tabindex={cell.hasUpgrade && cell.affordable ? 0 : -1}
+        aria-label={cell.hasUpgrade && cell.upgrade ? (cell.affordable ? `Purchase ${getUpgradeTypeName(cell.upgrade.type)} upgrade` : `${getUpgradeTypeName(cell.upgrade.type)} upgrade - Insufficient Chaos Orbs`) : "Empty cell"}
+        aria-disabled={cell.hasUpgrade && !cell.affordable}
       >
-        <span class="cell-icon">{getCellIcon(cellIndex)}</span>
-        {#if upgrade?.level > 0}
-          <span class="cell-level">{upgrade.level}</span>
+        <span class="cell-icon">{getCellIcon(cell.cellIndex)}</span>
+        {#if cell.upgradeLevel > 0}
+          <span class="cell-level">{cell.upgradeLevel}</span>
         {/if}
       </div>
     {/each}
