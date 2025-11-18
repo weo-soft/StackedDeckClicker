@@ -4,6 +4,7 @@ import type { DivinationCard } from '../models/Card.js';
 import type { ZoneLayout } from '../models/ZoneLayout.js';
 import { ZoneType } from '../models/ZoneLayout.js';
 import { zoneLayoutService } from '../services/zoneLayoutService.js';
+import { resolvePath } from '../utils/paths.js';
 
 const MAX_VISIBLE_CARDS = 150;
 const CARD_REMOVE_AGE = 35000; // Remove cards after 35 seconds
@@ -338,7 +339,7 @@ export class Scene {
       console.warn('Failed to load background image, using gradient fallback');
       this.backgroundImageLoaded = true; // Prevent retry loops
     };
-    img.src = '/images/The_Menagerie_area_screenshot.jpg';
+    img.src = resolvePath('/images/The_Menagerie_area_screenshot.jpg');
   }
 
   /**
@@ -377,7 +378,7 @@ export class Scene {
       console.warn('Failed to load drop mask image, using fallback ground level');
       this.dropMaskLoaded = true; // Prevent retry loops
     };
-    img.src = '/images/scene1_droppable_area.png';
+    img.src = resolvePath('/images/scene1_droppable_area.png');
   }
 
   /**

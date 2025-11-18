@@ -2,6 +2,7 @@ import type { CardPool } from '../models/CardPool.js';
 import type { DivinationCard } from '../models/Card.js';
 import type { QualityTier } from '../models/types.js';
 import { computeCumulativeWeights } from './weightedRandom.js';
+import { resolvePath } from './paths.js';
 
 /**
  * Interface for card data from cards.json
@@ -42,14 +43,14 @@ function getQualityTierFromValue(chaosValue: number): QualityTier {
 export async function createDefaultCardPool(): Promise<CardPool> {
   try {
     // Load cards data
-    const cardsResponse = await fetch('/cards/cards.json');
+    const cardsResponse = await fetch(resolvePath('/cards/cards.json'));
     if (!cardsResponse.ok) {
       throw new Error(`Failed to load cards.json: ${cardsResponse.statusText}`);
     }
     const cardsData: CardData[] = await cardsResponse.json();
 
     // Load card values data
-    const valuesResponse = await fetch('/cards/cardValues.json');
+    const valuesResponse = await fetch(resolvePath('/cards/cardValues.json'));
     if (!valuesResponse.ok) {
       throw new Error(`Failed to load cardValues.json: ${valuesResponse.statusText}`);
     }

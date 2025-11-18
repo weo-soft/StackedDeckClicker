@@ -1,5 +1,6 @@
 import { Howl, Howler } from 'howler';
 import type { QualityTier } from '../models/types.js';
+import { resolvePath } from '../utils/paths.js';
 
 /**
  * Audio service for managing game sound effects using Howler.js.
@@ -17,12 +18,12 @@ export class AudioService {
     if (this.initialized) return;
 
     const soundFiles: Record<string, string> = {
-      cardCommon: '/sounds/card-common.mp3',
-      cardRare: '/sounds/card-rare.mp3',
-      cardEpic: '/sounds/card-epic.mp3',
-      cardLegendary: '/sounds/card-legendary.mp3',
-      upgrade: '/sounds/upgrade.mp3',
-      scoreGain: '/sounds/score-gain.mp3'
+      cardCommon: resolvePath('/sounds/card-common.mp3'),
+      cardRare: resolvePath('/sounds/card-rare.mp3'),
+      cardEpic: resolvePath('/sounds/card-epic.mp3'),
+      cardLegendary: resolvePath('/sounds/card-legendary.mp3'),
+      upgrade: resolvePath('/sounds/upgrade.mp3'),
+      scoreGain: resolvePath('/sounds/score-gain.mp3')
     };
 
     const loadPromises: Promise<void>[] = [];
