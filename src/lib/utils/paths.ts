@@ -6,7 +6,8 @@
 /**
  * Get the base path for static assets.
  * Uses SvelteKit's BASE_URL environment variable, which is automatically set.
- * BASE_URL is always '/' for root, or '/repo-name/' for subdirectories (with trailing slash).
+ * BASE_URL is always '/' for root, or '/repo-name' for subdirectories (without trailing slash).
+ * Note: SvelteKit's paths.base must start with '/' but NOT end with '/'.
  */
 export function getBasePath(): string {
   return import.meta.env.BASE_URL;
@@ -27,9 +28,11 @@ export function resolvePath(path: string): string {
     return pathClean;
   }
   
-  // Otherwise, combine base (which has trailing slash) with path (which has leading slash)
-  // Remove the leading slash from path to avoid double slashes
-  const pathWithoutLeadingSlash = pathClean.slice(1);
-  return `${base}${pathWithoutLeadingSlash}`;
+  // Normalize base: remove trailing slash if present
+  const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
+  
+  // Combine base with path
+  // This creates: /repo-name + /cards/cards.json = /repo-name/cards/cards.json
+  return `${baseNormalized}${pathClean}`;
 }
 
