@@ -1,0 +1,2234 @@
+[
+    {
+      "name": "Abandoned Wealth",
+      "chaosValue": 4.39,
+      "divineValue": 0.03801739999999999,
+      "detailsId": "abandoned-wealth"
+    },
+    {
+      "name": "A Chilling Wind",
+      "chaosValue": 8.07,
+      "divineValue": 0.0698862,
+      "detailsId": "a-chilling-wind"
+    },
+    {
+      "name": "Alone in the Darkness",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "alone-in-the-darkness"
+    },
+    {
+      "name": "Arrogance of the Vaal",
+      "chaosValue": 2.32,
+      "divineValue": 0.020091199999999997,
+      "detailsId": "arrogance-of-the-vaal"
+    },
+    {
+      "name": "A Sea of Blue",
+      "chaosValue": 0.2328,
+      "divineValue": 0.002016048,
+      "detailsId": "a-sea-of-blue"
+    },
+    {
+      "name": "Auspicious Ambitions",
+      "chaosValue": 15,
+      "divineValue": 0.1299,
+      "detailsId": "auspicious-ambitions"
+    },
+    {
+      "name": "Azure Rage",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "azure-rage"
+    },
+    {
+      "name": "Baited Expectations",
+      "chaosValue": 2.89,
+      "divineValue": 0.025027399999999998,
+      "detailsId": "baited-expectations"
+    },
+    {
+      "name": "Bijoux",
+      "chaosValue": 2.92,
+      "divineValue": 0.025287199999999996,
+      "detailsId": "bijoux"
+    },
+    {
+      "name": "Broken Promises",
+      "chaosValue": 60.07,
+      "divineValue": 0.5202062,
+      "detailsId": "broken-promises"
+    },
+    {
+      "name": "Broken Truce",
+      "chaosValue": 1.54,
+      "divineValue": 0.0133364,
+      "detailsId": "broken-truce"
+    },
+    {
+      "name": "Brush, Paint and Palette",
+      "chaosValue": 6.94,
+      "divineValue": 0.0601004,
+      "detailsId": "brush-paint-and-palette"
+    },
+    {
+      "name": "Call to the First Ones",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "call-to-the-first-ones"
+    },
+    {
+      "name": "Acclimatisation",
+      "chaosValue": 0.7262,
+      "divineValue": 0.006288891999999999,
+      "detailsId": "acclimatisation"
+    },
+    {
+      "name": "A Dab of Ink",
+      "chaosValue": 2.54,
+      "divineValue": 0.0219964,
+      "detailsId": "a-dab-of-ink"
+    },
+    {
+      "name": "A Dusty Memory",
+      "chaosValue": 3.78,
+      "divineValue": 0.032734799999999994,
+      "detailsId": "a-dusty-memory"
+    },
+    {
+      "name": "A Familiar Call",
+      "chaosValue": 4,
+      "divineValue": 0.03464,
+      "detailsId": "a-familiar-call"
+    },
+    {
+      "name": "A Fate Worse Than Death",
+      "chaosValue": 5.47,
+      "divineValue": 0.047370199999999994,
+      "detailsId": "a-fate-worse-than-death"
+    },
+    {
+      "name": "Akil's Prophecy",
+      "chaosValue": 5.44,
+      "divineValue": 0.0471104,
+      "detailsId": "akils-prophecy"
+    },
+    {
+      "name": "Alivia's Grace",
+      "chaosValue": 1.6,
+      "divineValue": 0.013856,
+      "detailsId": "alivias-grace"
+    },
+    {
+      "name": "Alluring Bounty",
+      "chaosValue": 10.54,
+      "divineValue": 0.09127639999999998,
+      "detailsId": "alluring-bounty"
+    },
+    {
+      "name": "Altered Perception",
+      "chaosValue": 5.07,
+      "divineValue": 0.0439062,
+      "detailsId": "altered-perception"
+    },
+    {
+      "name": "Ambitious Obsession",
+      "chaosValue": 2.25,
+      "divineValue": 0.019485,
+      "detailsId": "ambitious-obsession"
+    },
+    {
+      "name": "A Modest Request",
+      "chaosValue": 32.21,
+      "divineValue": 0.2789386,
+      "detailsId": "a-modest-request"
+    },
+    {
+      "name": "A Mother's Parting Gift",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "a-mothers-parting-gift"
+    },
+    {
+      "name": "Anarchy's Price",
+      "chaosValue": 9.22,
+      "divineValue": 0.0798452,
+      "detailsId": "anarchys-price"
+    },
+    {
+      "name": "A Note in the Wind",
+      "chaosValue": 0.1489,
+      "divineValue": 0.0012894739999999999,
+      "detailsId": "a-note-in-the-wind"
+    },
+    {
+      "name": "Assassin's Gift",
+      "chaosValue": 17,
+      "divineValue": 0.14722,
+      "detailsId": "assassins-gift"
+    },
+    {
+      "name": "A Stone Perfected",
+      "chaosValue": 16.29,
+      "divineValue": 0.14107139999999999,
+      "detailsId": "a-stone-perfected"
+    },
+    {
+      "name": "Astral Protection",
+      "chaosValue": 4.6,
+      "divineValue": 0.039835999999999996,
+      "detailsId": "astral-protection"
+    },
+    {
+      "name": "Audacity",
+      "chaosValue": 3.13,
+      "divineValue": 0.027105799999999996,
+      "detailsId": "audacity"
+    },
+    {
+      "name": "Avian Pursuit",
+      "chaosValue": 7.17,
+      "divineValue": 0.06209219999999999,
+      "detailsId": "avian-pursuit"
+    },
+    {
+      "name": "Azyran's Reward",
+      "chaosValue": 9.61,
+      "divineValue": 0.0832226,
+      "detailsId": "azyrans-reward"
+    },
+    {
+      "name": "Beauty Through Death",
+      "chaosValue": 13.48,
+      "divineValue": 0.11673679999999999,
+      "detailsId": "beauty-through-death"
+    },
+    {
+      "name": "Blind Venture",
+      "chaosValue": 0.9857,
+      "divineValue": 0.008536162,
+      "detailsId": "blind-venture"
+    },
+    {
+      "name": "Boon of Justice",
+      "chaosValue": 0.02,
+      "divineValue": 0.00017319999999999998,
+      "detailsId": "boon-of-justice"
+    },
+    {
+      "name": "Bound by Flame",
+      "chaosValue": 2.17,
+      "divineValue": 0.0187922,
+      "detailsId": "bound-by-flame"
+    },
+    {
+      "name": "Brotherhood in Exile",
+      "chaosValue": 3.7,
+      "divineValue": 0.032042,
+      "detailsId": "brotherhood-in-exile"
+    },
+    {
+      "name": "Brother's Gift",
+      "chaosValue": 494.3,
+      "divineValue": 4.280638,
+      "detailsId": "brothers-gift"
+    },
+    {
+      "name": "Brother's Stash",
+      "chaosValue": 35.77,
+      "divineValue": 0.3097682,
+      "detailsId": "brothers-stash"
+    },
+    {
+      "name": "Cameria's Cut",
+      "chaosValue": 0.07237,
+      "divineValue": 0.0006267242,
+      "detailsId": "camerias-cut"
+    },
+    {
+      "name": "Chasing Risk",
+      "chaosValue": 10.52,
+      "divineValue": 0.0911032,
+      "detailsId": "chasing-risk"
+    },
+    {
+      "name": "Checkmate",
+      "chaosValue": 0.2718,
+      "divineValue": 0.002353788,
+      "detailsId": "checkmate"
+    },
+    {
+      "name": "Council of Cats",
+      "chaosValue": 0.7273,
+      "divineValue": 0.006298417999999999,
+      "detailsId": "council-of-cats"
+    },
+    {
+      "name": "Darker Half",
+      "chaosValue": 40.25,
+      "divineValue": 0.34856499999999996,
+      "detailsId": "darker-half"
+    },
+    {
+      "name": "Deadly Joy",
+      "chaosValue": 13.45,
+      "divineValue": 0.11647699999999998,
+      "detailsId": "deadly-joy"
+    },
+    {
+      "name": "Dementophobia",
+      "chaosValue": 3.6,
+      "divineValue": 0.031176,
+      "detailsId": "dementophobia"
+    },
+    {
+      "name": "Demigod's Wager",
+      "chaosValue": 0.125,
+      "divineValue": 0.0010825,
+      "detailsId": "demigods-wager"
+    },
+    {
+      "name": "Desecrated Virtue",
+      "chaosValue": 128.8,
+      "divineValue": 1.115408,
+      "detailsId": "desecrated-virtue"
+    },
+    {
+      "name": "Destined to Crumble",
+      "chaosValue": 0.02,
+      "divineValue": 0.00017319999999999998,
+      "detailsId": "destined-to-crumble"
+    },
+    {
+      "name": "Dialla's Subjugation",
+      "chaosValue": 3.12,
+      "divineValue": 0.0270192,
+      "detailsId": "diallas-subjugation"
+    },
+    {
+      "name": "Divine Justice",
+      "chaosValue": 367.8,
+      "divineValue": 3.185148,
+      "detailsId": "divine-justice"
+    },
+    {
+      "name": "Doryani's Epiphany",
+      "chaosValue": 22.21,
+      "divineValue": 0.1923386,
+      "detailsId": "doryanis-epiphany"
+    },
+    {
+      "name": "Dying Anguish",
+      "chaosValue": 1.35,
+      "divineValue": 0.011691,
+      "detailsId": "dying-anguish"
+    },
+    {
+      "name": "Eldritch Perfection",
+      "chaosValue": 2.69,
+      "divineValue": 0.023295399999999997,
+      "detailsId": "eldritch-perfection"
+    },
+    {
+      "name": "Etched in Blood",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "etched-in-blood"
+    },
+    {
+      "name": "Eternal Bonds",
+      "chaosValue": 6.35,
+      "divineValue": 0.05499099999999999,
+      "detailsId": "eternal-bonds"
+    },
+    {
+      "name": "Fateful Meeting",
+      "chaosValue": 21.83,
+      "divineValue": 0.18904779999999996,
+      "detailsId": "fateful-meeting"
+    },
+    {
+      "name": "Fire Of Unknown Origin",
+      "chaosValue": 2552,
+      "divineValue": 22.10032,
+      "detailsId": "fire-of-unknown-origin"
+    },
+    {
+      "name": "From Bone to Ashes",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "from-bone-to-ashes"
+    },
+    {
+      "name": "Gemcutter's Mercy",
+      "chaosValue": 27.68,
+      "divineValue": 0.23970879999999997,
+      "detailsId": "gemcutters-mercy"
+    },
+    {
+      "name": "Gift of Asenath",
+      "chaosValue": 3.84,
+      "divineValue": 0.033254399999999996,
+      "detailsId": "gift-of-asenath"
+    },
+    {
+      "name": "Haunting Shadows",
+      "chaosValue": 4.75,
+      "divineValue": 0.041135,
+      "detailsId": "haunting-shadows"
+    },
+    {
+      "name": "Her Mask",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "her-mask"
+    },
+    {
+      "name": "Jack in the Box",
+      "chaosValue": 0.6588,
+      "divineValue": 0.005705208,
+      "detailsId": "jack-in-the-box"
+    },
+    {
+      "name": "Justified Ambition",
+      "chaosValue": 1.56,
+      "divineValue": 0.0135096,
+      "detailsId": "justified-ambition"
+    },
+    {
+      "name": "Keeper's Corruption",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "keepers-corruption"
+    },
+    {
+      "name": "Left to Fate",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "left-to-fate"
+    },
+    {
+      "name": "Lethean Temptation",
+      "chaosValue": 28.27,
+      "divineValue": 0.24481819999999999,
+      "detailsId": "lethean-temptation"
+    },
+    {
+      "name": "Lingering Remnants",
+      "chaosValue": 0.5152,
+      "divineValue": 0.004461631999999999,
+      "detailsId": "lingering-remnants"
+    },
+    {
+      "name": "Lonely Warrior",
+      "chaosValue": 35.07,
+      "divineValue": 0.3037062,
+      "detailsId": "lonely-warrior"
+    },
+    {
+      "name": "Love Through Ice",
+      "chaosValue": 138.5,
+      "divineValue": 1.1994099999999999,
+      "detailsId": "love-through-ice"
+    },
+    {
+      "name": "Loyalty",
+      "chaosValue": 0.003571,
+      "divineValue": 3.0924859999999997e-05,
+      "detailsId": "loyalty"
+    },
+    {
+      "name": "Luminous Trove",
+      "chaosValue": 98.29,
+      "divineValue": 0.8511913999999999,
+      "detailsId": "luminous-trove"
+    },
+    {
+      "name": "Lysah's Respite",
+      "chaosValue": 1.27,
+      "divineValue": 0.0109982,
+      "detailsId": "lysahs-respite"
+    },
+    {
+      "name": "Magnum Opus",
+      "chaosValue": 23.92,
+      "divineValue": 0.2071472,
+      "detailsId": "magnum-opus"
+    },
+    {
+      "name": "Man With Bear",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "man-with-bear"
+    },
+    {
+      "name": "Merciless Armament",
+      "chaosValue": 3.11,
+      "divineValue": 0.026932599999999998,
+      "detailsId": "merciless-armament"
+    },
+    {
+      "name": "More is Never Enough",
+      "chaosValue": 0.4896,
+      "divineValue": 0.004239936,
+      "detailsId": "more-is-never-enough"
+    },
+    {
+      "name": "Nook's Crown",
+      "chaosValue": 3.67,
+      "divineValue": 0.0317822,
+      "detailsId": "nooks-crown"
+    },
+    {
+      "name": "No Traces",
+      "chaosValue": 0.2241,
+      "divineValue": 0.0019407059999999997,
+      "detailsId": "no-traces"
+    },
+    {
+      "name": "One Last Score",
+      "chaosValue": 423.4,
+      "divineValue": 3.6666439999999993,
+      "detailsId": "one-last-score"
+    },
+    {
+      "name": "Parasitic Passengers",
+      "chaosValue": 0.7939,
+      "divineValue": 0.0068751739999999995,
+      "detailsId": "parasitic-passengers"
+    },
+    {
+      "name": "Poisoned Faith",
+      "chaosValue": 3.17,
+      "divineValue": 0.027452199999999996,
+      "detailsId": "poisoned-faith"
+    },
+    {
+      "name": "Prejudice",
+      "chaosValue": 1.69,
+      "divineValue": 0.014635399999999998,
+      "detailsId": "prejudice"
+    },
+    {
+      "name": "Prometheus' Armoury",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "prometheus-armoury"
+    },
+    {
+      "name": "Prosperity",
+      "chaosValue": 0.25,
+      "divineValue": 0.002165,
+      "detailsId": "prosperity"
+    },
+    {
+      "name": "Reckless Ambition",
+      "chaosValue": 9.71,
+      "divineValue": 0.0840886,
+      "detailsId": "reckless-ambition"
+    },
+    {
+      "name": "Runic Luck",
+      "chaosValue": 0.6857,
+      "divineValue": 0.0059381619999999994,
+      "detailsId": "runic-luck"
+    },
+    {
+      "name": "Sambodhi's Wisdom",
+      "chaosValue": 5.03,
+      "divineValue": 0.043559799999999996,
+      "detailsId": "sambodhis-wisdom"
+    },
+    {
+      "name": "Society's Remorse",
+      "chaosValue": 0.7363,
+      "divineValue": 0.0063763579999999995,
+      "detailsId": "societys-remorse"
+    },
+    {
+      "name": "Temperance",
+      "chaosValue": 26,
+      "divineValue": 0.22515999999999997,
+      "detailsId": "temperance"
+    },
+    {
+      "name": "Terrible Secret of Space",
+      "chaosValue": 16.1,
+      "divineValue": 0.139426,
+      "detailsId": "terrible-secret-of-space"
+    },
+    {
+      "name": "The Academic",
+      "chaosValue": 2.4,
+      "divineValue": 0.020783999999999997,
+      "detailsId": "the-academic"
+    },
+    {
+      "name": "The Artist",
+      "chaosValue": 37.3,
+      "divineValue": 0.32301799999999997,
+      "detailsId": "the-artist"
+    },
+    {
+      "name": "The Aspirant",
+      "chaosValue": 7.13,
+      "divineValue": 0.061745799999999997,
+      "detailsId": "the-aspirant"
+    },
+    {
+      "name": "The Betrayal",
+      "chaosValue": 2.5,
+      "divineValue": 0.02165,
+      "detailsId": "the-betrayal"
+    },
+    {
+      "name": "The Blazing Fire",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-blazing-fire"
+    },
+    {
+      "name": "The Bones",
+      "chaosValue": 1.36,
+      "divineValue": 0.0117776,
+      "detailsId": "the-bones"
+    },
+    {
+      "name": "The Brittle Emperor",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-brittle-emperor"
+    },
+    {
+      "name": "The Card Sharp",
+      "chaosValue": 1.06,
+      "divineValue": 0.0091796,
+      "detailsId": "the-card-sharp"
+    },
+    {
+      "name": "The Carrion Crow",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-carrion-crow"
+    },
+    {
+      "name": "The Catalyst",
+      "chaosValue": 0.0104,
+      "divineValue": 9.006399999999998e-05,
+      "detailsId": "the-catalyst"
+    },
+    {
+      "name": "The Catch",
+      "chaosValue": 11.33,
+      "divineValue": 0.09811779999999999,
+      "detailsId": "the-catch"
+    },
+    {
+      "name": "The Celestial Stone",
+      "chaosValue": 2.33,
+      "divineValue": 0.0201778,
+      "detailsId": "the-celestial-stone"
+    },
+    {
+      "name": "The Cheater",
+      "chaosValue": 375.5,
+      "divineValue": 3.2518299999999996,
+      "detailsId": "the-cheater"
+    },
+    {
+      "name": "The Chosen",
+      "chaosValue": 0.7258,
+      "divineValue": 0.006285427999999999,
+      "detailsId": "the-chosen"
+    },
+    {
+      "name": "The Cursed King",
+      "chaosValue": 2.12,
+      "divineValue": 0.0183592,
+      "detailsId": "the-cursed-king"
+    },
+    {
+      "name": "The Dapper Prodigy",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-dapper-prodigy"
+    },
+    {
+      "name": "The Deceiver",
+      "chaosValue": 3.1,
+      "divineValue": 0.026846,
+      "detailsId": "the-deceiver"
+    },
+    {
+      "name": "The Doctor",
+      "chaosValue": 800.4,
+      "divineValue": 6.931463999999999,
+      "detailsId": "the-doctor"
+    },
+    {
+      "name": "The Dreamland",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "the-dreamland"
+    },
+    {
+      "name": "The Drunken Aristocrat",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "the-drunken-aristocrat"
+    },
+    {
+      "name": "The Eldritch Decay",
+      "chaosValue": 5.51,
+      "divineValue": 0.04771659999999999,
+      "detailsId": "the-eldritch-decay"
+    },
+    {
+      "name": "The Endless Darkness",
+      "chaosValue": 89.07,
+      "divineValue": 0.7713461999999999,
+      "detailsId": "the-endless-darkness"
+    },
+    {
+      "name": "The Endurance",
+      "chaosValue": 0.331,
+      "divineValue": 0.00286646,
+      "detailsId": "the-endurance"
+    },
+    {
+      "name": "The Enforcer",
+      "chaosValue": 11.67,
+      "divineValue": 0.10106219999999999,
+      "detailsId": "the-enforcer"
+    },
+    {
+      "name": "The Enlightened",
+      "chaosValue": 54.56,
+      "divineValue": 0.47248959999999995,
+      "detailsId": "the-enlightened"
+    },
+    {
+      "name": "The Enthusiasts",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-enthusiasts"
+    },
+    {
+      "name": "The Ethereal",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-ethereal"
+    },
+    {
+      "name": "The Eye of the Dragon",
+      "chaosValue": 7.91,
+      "divineValue": 0.0685006,
+      "detailsId": "the-eye-of-the-dragon"
+    },
+    {
+      "name": "The Feast",
+      "chaosValue": 2.33,
+      "divineValue": 0.0201778,
+      "detailsId": "the-feast"
+    },
+    {
+      "name": "The Fiend",
+      "chaosValue": 554.3,
+      "divineValue": 4.800237999999999,
+      "detailsId": "the-fiend"
+    },
+    {
+      "name": "The Fool",
+      "chaosValue": 0.2255,
+      "divineValue": 0.0019528299999999998,
+      "detailsId": "the-fool"
+    },
+    {
+      "name": "The Forgotten Treasure",
+      "chaosValue": 11.4,
+      "divineValue": 0.09872399999999999,
+      "detailsId": "the-forgotten-treasure"
+    },
+    {
+      "name": "The Formless Sea",
+      "chaosValue": 8.87,
+      "divineValue": 0.07681419999999999,
+      "detailsId": "the-formless-sea"
+    },
+    {
+      "name": "The Fortunate",
+      "chaosValue": 18.37,
+      "divineValue": 0.1590842,
+      "detailsId": "the-fortunate"
+    },
+    {
+      "name": "The Fox",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-fox"
+    },
+    {
+      "name": "The Fox in the Brambles",
+      "chaosValue": 3.14,
+      "divineValue": 0.0271924,
+      "detailsId": "the-fox-in-the-brambles"
+    },
+    {
+      "name": "The Gambler",
+      "chaosValue": 0.3342,
+      "divineValue": 0.0028941719999999995,
+      "detailsId": "the-gambler"
+    },
+    {
+      "name": "The Gemcutter",
+      "chaosValue": 0.13,
+      "divineValue": 0.0011258,
+      "detailsId": "the-gemcutter"
+    },
+    {
+      "name": "The Greatest Intentions",
+      "chaosValue": 15.23,
+      "divineValue": 0.1318918,
+      "detailsId": "the-greatest-intentions"
+    },
+    {
+      "name": "The Harvester",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-harvester"
+    },
+    {
+      "name": "The Heroic Shot",
+      "chaosValue": 0.5297,
+      "divineValue": 0.004587201999999999,
+      "detailsId": "the-heroic-shot"
+    },
+    {
+      "name": "The Hive of Knowledge",
+      "chaosValue": 3.62,
+      "divineValue": 0.0313492,
+      "detailsId": "the-hive-of-knowledge"
+    },
+    {
+      "name": "The Innocent",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-innocent"
+    },
+    {
+      "name": "The Insane Cat",
+      "chaosValue": 1563,
+      "divineValue": 13.53558,
+      "detailsId": "the-insane-cat"
+    },
+    {
+      "name": "The Journalist",
+      "chaosValue": 0.02189,
+      "divineValue": 0.00018956739999999997,
+      "detailsId": "the-journalist"
+    },
+    {
+      "name": "The King's Blade",
+      "chaosValue": 0.0008696,
+      "divineValue": 7.530735999999999e-06,
+      "detailsId": "the-kings-blade"
+    },
+    {
+      "name": "The Landing",
+      "chaosValue": 0.2,
+      "divineValue": 0.001732,
+      "detailsId": "the-landing"
+    },
+    {
+      "name": "The Last Supper",
+      "chaosValue": 18.59,
+      "divineValue": 0.16098939999999998,
+      "detailsId": "the-last-supper"
+    },
+    {
+      "name": "The Leviathan",
+      "chaosValue": 18.61,
+      "divineValue": 0.1611626,
+      "detailsId": "the-leviathan"
+    },
+    {
+      "name": "The Lion",
+      "chaosValue": 2.83,
+      "divineValue": 0.0245078,
+      "detailsId": "the-lion"
+    },
+    {
+      "name": "The Lord of Celebration",
+      "chaosValue": 4,
+      "divineValue": 0.03464,
+      "detailsId": "the-lord-of-celebration"
+    },
+    {
+      "name": "The Lover",
+      "chaosValue": 0.322,
+      "divineValue": 0.00278852,
+      "detailsId": "the-lover"
+    },
+    {
+      "name": "The Lunaris Priestess",
+      "chaosValue": 0.5,
+      "divineValue": 0.00433,
+      "detailsId": "the-lunaris-priestess"
+    },
+    {
+      "name": "The Mad King",
+      "chaosValue": 28.67,
+      "divineValue": 0.2482822,
+      "detailsId": "the-mad-king"
+    },
+    {
+      "name": "The Magma Crab",
+      "chaosValue": 5,
+      "divineValue": 0.0433,
+      "detailsId": "the-magma-crab"
+    },
+    {
+      "name": "The Mercenary",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-mercenary"
+    },
+    {
+      "name": "The Oath",
+      "chaosValue": 1.5,
+      "divineValue": 0.012989999999999998,
+      "detailsId": "the-oath"
+    },
+    {
+      "name": "The Offspring",
+      "chaosValue": 1.66,
+      "divineValue": 0.014375599999999999,
+      "detailsId": "the-offspring"
+    },
+    {
+      "name": "The Old Man",
+      "chaosValue": 5.67,
+      "divineValue": 0.0491022,
+      "detailsId": "the-old-man"
+    },
+    {
+      "name": "The One That Got Away",
+      "chaosValue": 22,
+      "divineValue": 0.19052,
+      "detailsId": "the-one-that-got-away"
+    },
+    {
+      "name": "The One With All",
+      "chaosValue": 3.86,
+      "divineValue": 0.033427599999999995,
+      "detailsId": "the-one-with-all"
+    },
+    {
+      "name": "The Opulent",
+      "chaosValue": 0.1,
+      "divineValue": 0.000866,
+      "detailsId": "the-opulent"
+    },
+    {
+      "name": "The Pack Leader",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-pack-leader"
+    },
+    {
+      "name": "The Price of Loyalty",
+      "chaosValue": 10,
+      "divineValue": 0.0866,
+      "detailsId": "the-price-of-loyalty"
+    },
+    {
+      "name": "The Price of Protection",
+      "chaosValue": 1.23,
+      "divineValue": 0.0106518,
+      "detailsId": "the-price-of-protection"
+    },
+    {
+      "name": "The Primordial",
+      "chaosValue": 2.64,
+      "divineValue": 0.022862399999999998,
+      "detailsId": "the-primordial"
+    },
+    {
+      "name": "The Prince of Darkness",
+      "chaosValue": 4.02,
+      "divineValue": 0.034813199999999996,
+      "detailsId": "the-prince-of-darkness"
+    },
+    {
+      "name": "The Professor",
+      "chaosValue": 4.07,
+      "divineValue": 0.0352462,
+      "detailsId": "the-professor"
+    },
+    {
+      "name": "The Progeny of Lunaris",
+      "chaosValue": 606.2,
+      "divineValue": 5.249692,
+      "detailsId": "the-progeny-of-lunaris"
+    },
+    {
+      "name": "The Rabbit's Foot",
+      "chaosValue": 140.9,
+      "divineValue": 1.220194,
+      "detailsId": "the-rabbits-foot"
+    },
+    {
+      "name": "The Realm",
+      "chaosValue": 0.1202,
+      "divineValue": 0.0010409319999999998,
+      "detailsId": "the-realm"
+    },
+    {
+      "name": "The Return of the Rat",
+      "chaosValue": 3.33,
+      "divineValue": 0.028837799999999997,
+      "detailsId": "the-return-of-the-rat"
+    },
+    {
+      "name": "The Risk",
+      "chaosValue": 0.2466,
+      "divineValue": 0.002135556,
+      "detailsId": "the-risk"
+    },
+    {
+      "name": "The Rite of Elements",
+      "chaosValue": 0.5319,
+      "divineValue": 0.004606254,
+      "detailsId": "the-rite-of-elements"
+    },
+    {
+      "name": "The Rusted Bard",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-rusted-bard"
+    },
+    {
+      "name": "The Sacrifice",
+      "chaosValue": 51.45,
+      "divineValue": 0.445557,
+      "detailsId": "the-sacrifice"
+    },
+    {
+      "name": "The Saint's Treasure",
+      "chaosValue": 1.35,
+      "divineValue": 0.011691,
+      "detailsId": "the-saints-treasure"
+    },
+    {
+      "name": "The Scholar",
+      "chaosValue": 0.003299,
+      "divineValue": 2.8569339999999997e-05,
+      "detailsId": "the-scholar"
+    },
+    {
+      "name": "The Scout",
+      "chaosValue": 6.2,
+      "divineValue": 0.053692,
+      "detailsId": "the-scout"
+    },
+    {
+      "name": "The Shepherd's Sandals",
+      "chaosValue": 3.33,
+      "divineValue": 0.028837799999999997,
+      "detailsId": "the-shepherds-sandals"
+    },
+    {
+      "name": "The Side Quest",
+      "chaosValue": 6.99,
+      "divineValue": 0.060533399999999994,
+      "detailsId": "the-side-quest"
+    },
+    {
+      "name": "The Soul",
+      "chaosValue": 36.65,
+      "divineValue": 0.317389,
+      "detailsId": "the-soul"
+    },
+    {
+      "name": "The Spark and the Flame",
+      "chaosValue": 1.15,
+      "divineValue": 0.009958999999999999,
+      "detailsId": "the-spark-and-the-flame"
+    },
+    {
+      "name": "The Spoiled Prince",
+      "chaosValue": 1.89,
+      "divineValue": 0.016367399999999997,
+      "detailsId": "the-spoiled-prince"
+    },
+    {
+      "name": "The Stormcaller",
+      "chaosValue": 0.2536,
+      "divineValue": 0.0021961759999999998,
+      "detailsId": "the-stormcaller"
+    },
+    {
+      "name": "The Summoner",
+      "chaosValue": 0.3333,
+      "divineValue": 0.0028863779999999998,
+      "detailsId": "the-summoner"
+    },
+    {
+      "name": "The Thaumaturgist",
+      "chaosValue": 8.04,
+      "divineValue": 0.06962639999999999,
+      "detailsId": "the-thaumaturgist"
+    },
+    {
+      "name": "The Tireless Extractor",
+      "chaosValue": 0.1612,
+      "divineValue": 0.001395992,
+      "detailsId": "the-tireless-extractor"
+    },
+    {
+      "name": "The Transformation",
+      "chaosValue": 1.36,
+      "divineValue": 0.0117776,
+      "detailsId": "the-transformation"
+    },
+    {
+      "name": "The Vast",
+      "chaosValue": 15.38,
+      "divineValue": 0.1331908,
+      "detailsId": "the-vast"
+    },
+    {
+      "name": "The Visionary",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-visionary"
+    },
+    {
+      "name": "The Void",
+      "chaosValue": 0.9509,
+      "divineValue": 0.008234793999999998,
+      "detailsId": "the-void"
+    },
+    {
+      "name": "The White Knight",
+      "chaosValue": 0.25,
+      "divineValue": 0.002165,
+      "detailsId": "the-white-knight"
+    },
+    {
+      "name": "The Wind",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-wind"
+    },
+    {
+      "name": "The Wolven King's Bite",
+      "chaosValue": 0.6053,
+      "divineValue": 0.005241897999999999,
+      "detailsId": "the-wolven-kings-bite"
+    },
+    {
+      "name": "The World Eater",
+      "chaosValue": 15,
+      "divineValue": 0.1299,
+      "detailsId": "the-world-eater"
+    },
+    {
+      "name": "The Wrath",
+      "chaosValue": 1.11,
+      "divineValue": 0.0096126,
+      "detailsId": "the-wrath"
+    },
+    {
+      "name": "Time-Lost Relic",
+      "chaosValue": 0.125,
+      "divineValue": 0.0010825,
+      "detailsId": "time-lost-relic"
+    },
+    {
+      "name": "Tranquillity",
+      "chaosValue": 16.92,
+      "divineValue": 0.1465272,
+      "detailsId": "tranquillity"
+    },
+    {
+      "name": "Turn the Other Cheek",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "turn-the-other-cheek"
+    },
+    {
+      "name": "Unchained",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "unchained"
+    },
+    {
+      "name": "Vile Power",
+      "chaosValue": 0.3333,
+      "divineValue": 0.0028863779999999998,
+      "detailsId": "vile-power"
+    },
+    {
+      "name": "Vinia's Token",
+      "chaosValue": 0.2691,
+      "divineValue": 0.0023304059999999997,
+      "detailsId": "vinias-token"
+    },
+    {
+      "name": "Wealth and Power",
+      "chaosValue": 139.3,
+      "divineValue": 1.206338,
+      "detailsId": "wealth-and-power"
+    },
+    {
+      "name": "When Currents Blaze",
+      "chaosValue": 1.2,
+      "divineValue": 0.010391999999999998,
+      "detailsId": "when-currents-blaze"
+    },
+    {
+      "name": "Chaotic Disposition",
+      "chaosValue": 4.55,
+      "divineValue": 0.039402999999999994,
+      "detailsId": "chaotic-disposition"
+    },
+    {
+      "name": "Choking Guilt",
+      "chaosValue": 151,
+      "divineValue": 1.3076599999999998,
+      "detailsId": "choking-guilt"
+    },
+    {
+      "name": "Costly Curio",
+      "chaosValue": 14.78,
+      "divineValue": 0.1279948,
+      "detailsId": "costly-curio"
+    },
+    {
+      "name": "Coveted Possession",
+      "chaosValue": 0.6037,
+      "divineValue": 0.005228042,
+      "detailsId": "coveted-possession"
+    },
+    {
+      "name": "Deathly Designs",
+      "chaosValue": 4.82,
+      "divineValue": 0.0417412,
+      "detailsId": "deathly-designs"
+    },
+    {
+      "name": "Desperate Crusade",
+      "chaosValue": 1.76,
+      "divineValue": 0.0152416,
+      "detailsId": "desperate-crusade"
+    },
+    {
+      "name": "Disdain",
+      "chaosValue": 0.68,
+      "divineValue": 0.0058888,
+      "detailsId": "disdain"
+    },
+    {
+      "name": "Divine Beauty",
+      "chaosValue": 65.13,
+      "divineValue": 0.5640257999999999,
+      "detailsId": "divine-beauty"
+    },
+    {
+      "name": "Damnation",
+      "chaosValue": 4041,
+      "divineValue": 34.995059999999995,
+      "detailsId": "damnation"
+    },
+    {
+      "name": "House of Mirrors",
+      "chaosValue": 8177,
+      "divineValue": 70.81281999999999,
+      "detailsId": "house-of-mirrors"
+    },
+    {
+      "name": "Doedre's Madness",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "doedres-madness"
+    },
+    {
+      "name": "Draped in Dreams",
+      "chaosValue": 2.47,
+      "divineValue": 0.0213902,
+      "detailsId": "draped-in-dreams"
+    },
+    {
+      "name": "Dying Light",
+      "chaosValue": 6.5,
+      "divineValue": 0.05628999999999999,
+      "detailsId": "dying-light"
+    },
+    {
+      "name": "Earth Drinker",
+      "chaosValue": 0.5179,
+      "divineValue": 0.004485014,
+      "detailsId": "earth-drinker"
+    },
+    {
+      "name": "Echoes of Love",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "echoes-of-love"
+    },
+    {
+      "name": "Emperor of Purity",
+      "chaosValue": 0.64,
+      "divineValue": 0.005542399999999999,
+      "detailsId": "emperor-of-purity"
+    },
+    {
+      "name": "Emperor's Luck",
+      "chaosValue": 0.1429,
+      "divineValue": 0.0012375139999999999,
+      "detailsId": "emperors-luck"
+    },
+    {
+      "name": "Endless Night",
+      "chaosValue": 1.25,
+      "divineValue": 0.010825,
+      "detailsId": "endless-night"
+    },
+    {
+      "name": "Ever-Changing",
+      "chaosValue": 0.4026,
+      "divineValue": 0.003486516,
+      "detailsId": "ever-changing"
+    },
+    {
+      "name": "Father's Love",
+      "chaosValue": 5040,
+      "divineValue": 43.6464,
+      "detailsId": "fathers-love"
+    },
+    {
+      "name": "Friendship",
+      "chaosValue": 24.48,
+      "divineValue": 0.21199679999999999,
+      "detailsId": "friendship"
+    },
+    {
+      "name": "Gemcutter's Promise",
+      "chaosValue": 0.2003,
+      "divineValue": 0.001734598,
+      "detailsId": "gemcutters-promise"
+    },
+    {
+      "name": "Guardian's Challenge",
+      "chaosValue": 2.99,
+      "divineValue": 0.0258934,
+      "detailsId": "guardians-challenge"
+    },
+    {
+      "name": "Heterochromia",
+      "chaosValue": 0.9406,
+      "divineValue": 0.008145596,
+      "detailsId": "heterochromia"
+    },
+    {
+      "name": "History",
+      "chaosValue": 3045,
+      "divineValue": 26.369699999999998,
+      "detailsId": "history"
+    },
+    {
+      "name": "Home",
+      "chaosValue": 29.71,
+      "divineValue": 0.2572886,
+      "detailsId": "home"
+    },
+    {
+      "name": "Hope",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "hope"
+    },
+    {
+      "name": "Hubris",
+      "chaosValue": 0.5238,
+      "divineValue": 0.004536108,
+      "detailsId": "hubris"
+    },
+    {
+      "name": "Humility",
+      "chaosValue": 0.9744,
+      "divineValue": 0.008438303999999999,
+      "detailsId": "humility"
+    },
+    {
+      "name": "Hunter's Resolve",
+      "chaosValue": 0.5556,
+      "divineValue": 0.004811495999999999,
+      "detailsId": "hunters-resolve"
+    },
+    {
+      "name": "Hunter's Reward",
+      "chaosValue": 6.79,
+      "divineValue": 0.0588014,
+      "detailsId": "hunters-reward"
+    },
+    {
+      "name": "Immortal Resolve",
+      "chaosValue": 115.5,
+      "divineValue": 1.00023,
+      "detailsId": "immortal-resolve"
+    },
+    {
+      "name": "Imperfect Memories",
+      "chaosValue": 45.68,
+      "divineValue": 0.39558879999999996,
+      "detailsId": "imperfect-memories"
+    },
+    {
+      "name": "Imperial Legacy",
+      "chaosValue": 0.1672,
+      "divineValue": 0.0014479519999999997,
+      "detailsId": "imperial-legacy"
+    },
+    {
+      "name": "I See Brothers",
+      "chaosValue": 357.5,
+      "divineValue": 3.0959499999999998,
+      "detailsId": "i-see-brothers"
+    },
+    {
+      "name": "Judging Voices",
+      "chaosValue": 4.28,
+      "divineValue": 0.0370648,
+      "detailsId": "judging-voices"
+    },
+    {
+      "name": "Lachrymal Necrosis",
+      "chaosValue": 10.65,
+      "divineValue": 0.09222899999999999,
+      "detailsId": "lachrymal-necrosis"
+    },
+    {
+      "name": "Last Hope",
+      "chaosValue": 0.3333,
+      "divineValue": 0.0028863779999999998,
+      "detailsId": "last-hope"
+    },
+    {
+      "name": "Last Stand",
+      "chaosValue": 80,
+      "divineValue": 0.6928,
+      "detailsId": "last-stand"
+    },
+    {
+      "name": "Lucky Connections",
+      "chaosValue": 0.07143,
+      "divineValue": 0.0006185837999999999,
+      "detailsId": "lucky-connections"
+    },
+    {
+      "name": "Lucky Deck",
+      "chaosValue": 1.4,
+      "divineValue": 0.012123999999999998,
+      "detailsId": "lucky-deck"
+    },
+    {
+      "name": "Matryoshka",
+      "chaosValue": 230.9,
+      "divineValue": 1.9995939999999999,
+      "detailsId": "matryoshka"
+    },
+    {
+      "name": "Mawr Blaidd",
+      "chaosValue": 11.74,
+      "divineValue": 0.10166839999999999,
+      "detailsId": "mawr-blaidd"
+    },
+    {
+      "name": "Misery in Darkness",
+      "chaosValue": 4.44,
+      "divineValue": 0.0384504,
+      "detailsId": "misery-in-darkness"
+    },
+    {
+      "name": "Monochrome",
+      "chaosValue": 44.16,
+      "divineValue": 0.3824255999999999,
+      "detailsId": "monochrome"
+    },
+    {
+      "name": "Peaceful Moments",
+      "chaosValue": 4.76,
+      "divineValue": 0.0412216,
+      "detailsId": "peaceful-moments"
+    },
+    {
+      "name": "Perfection",
+      "chaosValue": 7,
+      "divineValue": 0.06061999999999999,
+      "detailsId": "perfection"
+    },
+    {
+      "name": "Pride Before the Fall",
+      "chaosValue": 2.33,
+      "divineValue": 0.0201778,
+      "detailsId": "pride-before-the-fall"
+    },
+    {
+      "name": "Pride of the First Ones",
+      "chaosValue": 0.5,
+      "divineValue": 0.00433,
+      "detailsId": "pride-of-the-first-ones"
+    },
+    {
+      "name": "Rain of Chaos",
+      "chaosValue": 0.09758,
+      "divineValue": 0.0008450427999999999,
+      "detailsId": "rain-of-chaos"
+    },
+    {
+      "name": "Rats",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "rats"
+    },
+    {
+      "name": "Rebirth and Renewal",
+      "chaosValue": 6.12,
+      "divineValue": 0.052999199999999996,
+      "detailsId": "rebirth-and-renewal"
+    },
+    {
+      "name": "Rebirth",
+      "chaosValue": 10.67,
+      "divineValue": 0.09240219999999999,
+      "detailsId": "rebirth"
+    },
+    {
+      "name": "Remembrance",
+      "chaosValue": 13.69,
+      "divineValue": 0.11855539999999999,
+      "detailsId": "remembrance"
+    },
+    {
+      "name": "Sambodhi's Vow",
+      "chaosValue": 0.6475,
+      "divineValue": 0.00560735,
+      "detailsId": "sambodhis-vow"
+    },
+    {
+      "name": "Seven Years Bad Luck",
+      "chaosValue": 202.2,
+      "divineValue": 1.7510519999999998,
+      "detailsId": "seven-years-bad-luck"
+    },
+    {
+      "name": "Shard of Fate",
+      "chaosValue": 0.5086,
+      "divineValue": 0.004404476,
+      "detailsId": "shard-of-fate"
+    },
+    {
+      "name": "Something Dark",
+      "chaosValue": 10.22,
+      "divineValue": 0.08850519999999999,
+      "detailsId": "something-dark"
+    },
+    {
+      "name": "Squandered Prosperity",
+      "chaosValue": 47.06,
+      "divineValue": 0.4075396,
+      "detailsId": "squandered-prosperity"
+    },
+    {
+      "name": "Succor of the Sinless",
+      "chaosValue": 51.53,
+      "divineValue": 0.4462498,
+      "detailsId": "succor-of-the-sinless"
+    },
+    {
+      "name": "The Admirer",
+      "chaosValue": 4.6,
+      "divineValue": 0.039835999999999996,
+      "detailsId": "the-admirer"
+    },
+    {
+      "name": "The Aesthete",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-aesthete"
+    },
+    {
+      "name": "The Apothecary",
+      "chaosValue": 5144,
+      "divineValue": 44.547039999999996,
+      "detailsId": "the-apothecary"
+    },
+    {
+      "name": "The Archmage's Right Hand",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-archmages-right-hand"
+    },
+    {
+      "name": "The Awakened",
+      "chaosValue": 8.08,
+      "divineValue": 0.0699728,
+      "detailsId": "the-awakened"
+    },
+    {
+      "name": "The Battle Born",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-battle-born"
+    },
+    {
+      "name": "The Bitter Blossom",
+      "chaosValue": 7.28,
+      "divineValue": 0.0630448,
+      "detailsId": "the-bitter-blossom"
+    },
+    {
+      "name": "The Blessing of Moosh",
+      "chaosValue": 3.49,
+      "divineValue": 0.0302234,
+      "detailsId": "the-blessing-of-moosh"
+    },
+    {
+      "name": "The Brawny Battle Mage",
+      "chaosValue": 8.25,
+      "divineValue": 0.071445,
+      "detailsId": "the-brawny-battle-mage"
+    },
+    {
+      "name": "The Cache",
+      "chaosValue": 0.8427,
+      "divineValue": 0.007297781999999999,
+      "detailsId": "the-cache"
+    },
+    {
+      "name": "The Calling",
+      "chaosValue": 1.08,
+      "divineValue": 0.0093528,
+      "detailsId": "the-calling"
+    },
+    {
+      "name": "The Cartographer",
+      "chaosValue": 2.01,
+      "divineValue": 0.017406599999999998,
+      "detailsId": "the-cartographer"
+    },
+    {
+      "name": "The Cataclysm",
+      "chaosValue": 3.24,
+      "divineValue": 0.0280584,
+      "detailsId": "the-cataclysm"
+    },
+    {
+      "name": "The Celestial Justicar",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-celestial-justicar"
+    },
+    {
+      "name": "The Craving",
+      "chaosValue": 11.2,
+      "divineValue": 0.09699199999999998,
+      "detailsId": "the-craving"
+    },
+    {
+      "name": "The Damned",
+      "chaosValue": 23.82,
+      "divineValue": 0.2062812,
+      "detailsId": "the-damned"
+    },
+    {
+      "name": "The Darkest Dream",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "the-darkest-dream"
+    },
+    {
+      "name": "The Deal",
+      "chaosValue": 0.25,
+      "divineValue": 0.002165,
+      "detailsId": "the-deal"
+    },
+    {
+      "name": "The Deep Ones",
+      "chaosValue": 7.18,
+      "divineValue": 0.06217879999999999,
+      "detailsId": "the-deep-ones"
+    },
+    {
+      "name": "The Demon",
+      "chaosValue": 913.1,
+      "divineValue": 7.907445999999999,
+      "detailsId": "the-demon"
+    },
+    {
+      "name": "The Destination",
+      "chaosValue": 41.78,
+      "divineValue": 0.3618148,
+      "detailsId": "the-destination"
+    },
+    {
+      "name": "The Doppelganger",
+      "chaosValue": 0.3147,
+      "divineValue": 0.0027253019999999998,
+      "detailsId": "the-doppelganger"
+    },
+    {
+      "name": "The Dragon",
+      "chaosValue": 0.9894,
+      "divineValue": 0.008568204,
+      "detailsId": "the-dragon"
+    },
+    {
+      "name": "The Dragon's Heart",
+      "chaosValue": 53.48,
+      "divineValue": 0.46313679999999996,
+      "detailsId": "the-dragons-heart"
+    },
+    {
+      "name": "The Dreamer",
+      "chaosValue": 15,
+      "divineValue": 0.1299,
+      "detailsId": "the-dreamer"
+    },
+    {
+      "name": "The Dungeon Master",
+      "chaosValue": 6.34,
+      "divineValue": 0.05490439999999999,
+      "detailsId": "the-dungeon-master"
+    },
+    {
+      "name": "The Easy Stroll",
+      "chaosValue": 2.86,
+      "divineValue": 0.024767599999999997,
+      "detailsId": "the-easy-stroll"
+    },
+    {
+      "name": "The Encroaching Darkness",
+      "chaosValue": 2.46,
+      "divineValue": 0.0213036,
+      "detailsId": "the-encroaching-darkness"
+    },
+    {
+      "name": "The Escape",
+      "chaosValue": 2.63,
+      "divineValue": 0.0227758,
+      "detailsId": "the-escape"
+    },
+    {
+      "name": "The Eternal War",
+      "chaosValue": 13.71,
+      "divineValue": 0.1187286,
+      "detailsId": "the-eternal-war"
+    },
+    {
+      "name": "The Explorer",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-explorer"
+    },
+    {
+      "name": "The Finishing Touch",
+      "chaosValue": 1.88,
+      "divineValue": 0.016280799999999998,
+      "detailsId": "the-finishing-touch"
+    },
+    {
+      "name": "The Fishmonger",
+      "chaosValue": 15,
+      "divineValue": 0.1299,
+      "detailsId": "the-fishmonger"
+    },
+    {
+      "name": "The Forsaken",
+      "chaosValue": 4,
+      "divineValue": 0.03464,
+      "detailsId": "the-forsaken"
+    },
+    {
+      "name": "The Forward Gaze",
+      "chaosValue": 1.74,
+      "divineValue": 0.0150684,
+      "detailsId": "the-forward-gaze"
+    },
+    {
+      "name": "The Garish Power",
+      "chaosValue": 10.98,
+      "divineValue": 0.0950868,
+      "detailsId": "the-garish-power"
+    },
+    {
+      "name": "The Gladiator",
+      "chaosValue": 0.5,
+      "divineValue": 0.00433,
+      "detailsId": "the-gladiator"
+    },
+    {
+      "name": "The Golden Era",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-golden-era"
+    },
+    {
+      "name": "The Gulf",
+      "chaosValue": 40.23,
+      "divineValue": 0.3483917999999999,
+      "detailsId": "the-gulf"
+    },
+    {
+      "name": "The Hoarder",
+      "chaosValue": 0.4958,
+      "divineValue": 0.004293628,
+      "detailsId": "the-hoarder"
+    },
+    {
+      "name": "The Hook",
+      "chaosValue": 15.04,
+      "divineValue": 0.13024639999999998,
+      "detailsId": "the-hook"
+    },
+    {
+      "name": "The Immortal",
+      "chaosValue": 841.5,
+      "divineValue": 7.287389999999999,
+      "detailsId": "the-immortal"
+    },
+    {
+      "name": "The Incantation",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-incantation"
+    },
+    {
+      "name": "The Inventor",
+      "chaosValue": 0.1377,
+      "divineValue": 0.0011924819999999997,
+      "detailsId": "the-inventor"
+    },
+    {
+      "name": "The Jester",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-jester"
+    },
+    {
+      "name": "The King's Heart",
+      "chaosValue": 0.2615,
+      "divineValue": 0.00226459,
+      "detailsId": "the-kings-heart"
+    },
+    {
+      "name": "The Lake",
+      "chaosValue": 97.81,
+      "divineValue": 0.8470346,
+      "detailsId": "the-lake"
+    },
+    {
+      "name": "The Last Laugh",
+      "chaosValue": 4.65,
+      "divineValue": 0.040269,
+      "detailsId": "the-last-laugh"
+    },
+    {
+      "name": "The Last One Standing",
+      "chaosValue": 13.92,
+      "divineValue": 0.1205472,
+      "detailsId": "the-last-one-standing"
+    },
+    {
+      "name": "The Life Thief",
+      "chaosValue": 9.46,
+      "divineValue": 0.0819236,
+      "detailsId": "the-life-thief"
+    },
+    {
+      "name": "The Lord in Black",
+      "chaosValue": 3.33,
+      "divineValue": 0.028837799999999997,
+      "detailsId": "the-lord-in-black"
+    },
+    {
+      "name": "The Master Artisan",
+      "chaosValue": 0.1429,
+      "divineValue": 0.0012375139999999999,
+      "detailsId": "the-master-artisan"
+    },
+    {
+      "name": "The Mayor",
+      "chaosValue": 48.23,
+      "divineValue": 0.4176717999999999,
+      "detailsId": "the-mayor"
+    },
+    {
+      "name": "The Messenger",
+      "chaosValue": 1.4,
+      "divineValue": 0.012123999999999998,
+      "detailsId": "the-messenger"
+    },
+    {
+      "name": "The Mind's Eyes",
+      "chaosValue": 1.19,
+      "divineValue": 0.0103054,
+      "detailsId": "the-minds-eyes"
+    },
+    {
+      "name": "The Mountain",
+      "chaosValue": 0.3333,
+      "divineValue": 0.0028863779999999998,
+      "detailsId": "the-mountain"
+    },
+    {
+      "name": "The Nurse",
+      "chaosValue": 94.94,
+      "divineValue": 0.8221803999999999,
+      "detailsId": "the-nurse"
+    },
+    {
+      "name": "The Offering",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-offering"
+    },
+    {
+      "name": "The Patient",
+      "chaosValue": 11.87,
+      "divineValue": 0.10279419999999999,
+      "detailsId": "the-patient"
+    },
+    {
+      "name": "The Poet",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "the-poet"
+    },
+    {
+      "name": "The Polymath",
+      "chaosValue": 5.26,
+      "divineValue": 0.0455516,
+      "detailsId": "the-polymath"
+    },
+    {
+      "name": "The Porcupine",
+      "chaosValue": 0.2889,
+      "divineValue": 0.002501874,
+      "detailsId": "the-porcupine"
+    },
+    {
+      "name": "The Price of Devotion",
+      "chaosValue": 3031,
+      "divineValue": 26.248459999999998,
+      "detailsId": "the-price-of-devotion"
+    },
+    {
+      "name": "The Queen",
+      "chaosValue": 3.17,
+      "divineValue": 0.027452199999999996,
+      "detailsId": "the-queen"
+    },
+    {
+      "name": "The Road to Power",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-road-to-power"
+    },
+    {
+      "name": "The Samurai's Eye",
+      "chaosValue": 49.47,
+      "divineValue": 0.42841019999999996,
+      "detailsId": "the-samurais-eye"
+    },
+    {
+      "name": "The Sephirot",
+      "chaosValue": 102.1,
+      "divineValue": 0.8841859999999999,
+      "detailsId": "the-sephirot"
+    },
+    {
+      "name": "The Shieldbearer",
+      "chaosValue": 17.61,
+      "divineValue": 0.1525026,
+      "detailsId": "the-shieldbearer"
+    },
+    {
+      "name": "The Shortcut",
+      "chaosValue": 7.36,
+      "divineValue": 0.06373759999999999,
+      "detailsId": "the-shortcut"
+    },
+    {
+      "name": "The Sigil",
+      "chaosValue": 0.25,
+      "divineValue": 0.002165,
+      "detailsId": "the-sigil"
+    },
+    {
+      "name": "The Siren",
+      "chaosValue": 5,
+      "divineValue": 0.0433,
+      "detailsId": "the-siren"
+    },
+    {
+      "name": "The Skeleton",
+      "chaosValue": 0.7372,
+      "divineValue": 0.006384151999999999,
+      "detailsId": "the-skeleton"
+    },
+    {
+      "name": "The Standoff",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-standoff"
+    },
+    {
+      "name": "The Strategist",
+      "chaosValue": 8.05,
+      "divineValue": 0.069713,
+      "detailsId": "the-strategist"
+    },
+    {
+      "name": "The Sun",
+      "chaosValue": 0.1429,
+      "divineValue": 0.0012375139999999999,
+      "detailsId": "the-sun"
+    },
+    {
+      "name": "The Surgeon",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-surgeon"
+    },
+    {
+      "name": "The Throne",
+      "chaosValue": 2.64,
+      "divineValue": 0.022862399999999998,
+      "detailsId": "the-throne"
+    },
+    {
+      "name": "The Tyrant",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-tyrant"
+    },
+    {
+      "name": "The Undaunted",
+      "chaosValue": 1.94,
+      "divineValue": 0.016800399999999997,
+      "detailsId": "the-undaunted"
+    },
+    {
+      "name": "The Undisputed",
+      "chaosValue": 6.97,
+      "divineValue": 0.060360199999999996,
+      "detailsId": "the-undisputed"
+    },
+    {
+      "name": "The Unexpected Prize",
+      "chaosValue": 5,
+      "divineValue": 0.0433,
+      "detailsId": "the-unexpected-prize"
+    },
+    {
+      "name": "The Union",
+      "chaosValue": 0.7106,
+      "divineValue": 0.006153796,
+      "detailsId": "the-union"
+    },
+    {
+      "name": "The Valkyrie",
+      "chaosValue": 2.02,
+      "divineValue": 0.0174932,
+      "detailsId": "the-valkyrie"
+    },
+    {
+      "name": "The Warlord",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-warlord"
+    },
+    {
+      "name": "The Watcher",
+      "chaosValue": 0.4058,
+      "divineValue": 0.0035142279999999994,
+      "detailsId": "the-watcher"
+    },
+    {
+      "name": "The Wedding Gift",
+      "chaosValue": 11.94,
+      "divineValue": 0.10340039999999999,
+      "detailsId": "the-wedding-gift"
+    },
+    {
+      "name": "The Whiteout",
+      "chaosValue": 0.5774,
+      "divineValue": 0.005000284,
+      "detailsId": "the-whiteout"
+    },
+    {
+      "name": "The Wilted Rose",
+      "chaosValue": 1.29,
+      "divineValue": 0.0111714,
+      "detailsId": "the-wilted-rose"
+    },
+    {
+      "name": "The Witch",
+      "chaosValue": 0.2857,
+      "divineValue": 0.002474162,
+      "detailsId": "the-witch"
+    },
+    {
+      "name": "The Wolf's Legacy",
+      "chaosValue": 2.87,
+      "divineValue": 0.0248542,
+      "detailsId": "the-wolfs-legacy"
+    },
+    {
+      "name": "The Wolf's Shadow",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-wolfs-shadow"
+    },
+    {
+      "name": "The Wolverine",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-wolverine"
+    },
+    {
+      "name": "The Wretched",
+      "chaosValue": 1.56,
+      "divineValue": 0.0135096,
+      "detailsId": "the-wretched"
+    },
+    {
+      "name": "Three Faces in the Dark",
+      "chaosValue": 0.3178,
+      "divineValue": 0.002752148,
+      "detailsId": "three-faces-in-the-dark"
+    },
+    {
+      "name": "Three Voices",
+      "chaosValue": 0.1447,
+      "divineValue": 0.0012531019999999999,
+      "detailsId": "three-voices"
+    },
+    {
+      "name": "Toxic Tidings",
+      "chaosValue": 7.26,
+      "divineValue": 0.0628716,
+      "detailsId": "toxic-tidings"
+    },
+    {
+      "name": "Treasure Hunter",
+      "chaosValue": 6,
+      "divineValue": 0.05195999999999999,
+      "detailsId": "treasure-hunter"
+    },
+    {
+      "name": "Underground Forest",
+      "chaosValue": 3.59,
+      "divineValue": 0.031089399999999996,
+      "detailsId": "underground-forest"
+    },
+    {
+      "name": "Unrequited Love",
+      "chaosValue": 3187,
+      "divineValue": 27.59942,
+      "detailsId": "unrequited-love"
+    },
+    {
+      "name": "Vanity",
+      "chaosValue": 2.52,
+      "divineValue": 0.021823199999999997,
+      "detailsId": "vanity"
+    },
+    {
+      "name": "Void of the Elements",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "void-of-the-elements"
+    },
+    {
+      "name": "Volatile Power",
+      "chaosValue": 0.4008,
+      "divineValue": 0.0034709279999999994,
+      "detailsId": "volatile-power"
+    },
+    {
+      "name": "Who Asked",
+      "chaosValue": 5.48,
+      "divineValue": 0.0474568,
+      "detailsId": "who-asked"
+    },
+    {
+      "name": "Winter's Embrace",
+      "chaosValue": 36,
+      "divineValue": 0.31176,
+      "detailsId": "winters-embrace"
+    },
+    {
+      "name": "Harmony of Souls",
+      "chaosValue": 3,
+      "divineValue": 0.025979999999999996,
+      "detailsId": "harmony-of-souls"
+    },
+    {
+      "name": "Lantador's Lost Love",
+      "chaosValue": 0.0025,
+      "divineValue": 2.1649999999999998e-05,
+      "detailsId": "lantadors-lost-love"
+    },
+    {
+      "name": "The Hale Heart",
+      "chaosValue": 2.33,
+      "divineValue": 0.0201778,
+      "detailsId": "the-hale-heart"
+    },
+    {
+      "name": "The Inoculated",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-inoculated"
+    },
+    {
+      "name": "The Insatiable",
+      "chaosValue": 1,
+      "divineValue": 0.00866,
+      "detailsId": "the-insatiable"
+    },
+    {
+      "name": "The Metalsmith's Gift",
+      "chaosValue": 0.002,
+      "divineValue": 1.732e-05,
+      "detailsId": "the-metalsmiths-gift"
+    },
+    {
+      "name": "The Price of Prescience",
+      "chaosValue": 1.04,
+      "divineValue": 0.0090064,
+      "detailsId": "the-price-of-prescience"
+    },
+    {
+      "name": "Outfoxed",
+      "chaosValue": 341,
+      "divineValue": 2.95306,
+      "detailsId": "outfoxed"
+    },
+    {
+      "name": "The Journey",
+      "chaosValue": 2,
+      "divineValue": 0.01732,
+      "detailsId": "the-journey"
+    },
+    {
+      "name": "The Long Con",
+      "chaosValue": 31,
+      "divineValue": 0.26846,
+      "detailsId": "the-long-con"
+    }
+  ]

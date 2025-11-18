@@ -1,0 +1,33 @@
+﻿# StackedDeckClicker Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-11-17
+
+## Active Technologies
+- TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Canvas API (native browser) (002-game-zone-layout)
+- LocalForage (IndexedDB/localStorage) for game state persistence (002-game-zone-layout)
+
+- TypeScript/JavaScript (ES2020+), SvelteKit (latest stable) + SvelteKit, HTML5 Canvas API, localforge (IndexedDB wrapper), Howler.js (audio), seedrandom (PRNG), Vite (build tool) (001-stacked-deck-clicker)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+npm test; npm run lint
+
+## Code Style
+
+TypeScript/JavaScript (ES2020+), SvelteKit (latest stable): Follow standard conventions
+
+## Recent Changes
+- 002-game-zone-layout: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Canvas API (native browser)
+
+- 001-stacked-deck-clicker: Added TypeScript/JavaScript (ES2020+), SvelteKit (latest stable) + SvelteKit, HTML5 Canvas API, localforge (IndexedDB wrapper), Howler.js (audio), seedrandom (PRNG), Vite (build tool)
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
