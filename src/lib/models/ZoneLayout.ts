@@ -62,7 +62,7 @@ export const BASE_ZONE_COORDINATES: BaseZoneCoordinates = {
   orangeZone: { x: 0, y: 900, width: 1200, height: 180 },
   blueZone: { x: 1200, y: 0, width: 720, height: 540 },
   greenZone: { x: 1200, y: 540, width: 720, height: 540 },
-  purpleZone: { x: 10, y: 10, width: 200, height: 220 } // Top-left overlay on white zone
+  purpleZone: { x: 10, y: 10, width: 350, height: 530 } // Top-left overlay on white zone - sized to fit card (300x455 base + padding)
 };
 
 /**
