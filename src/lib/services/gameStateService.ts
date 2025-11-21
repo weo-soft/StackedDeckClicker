@@ -370,6 +370,17 @@ export class GameStateService {
       // Already have default state set, so just continue
     }
     
+    // Initialize tier system after card pool is loaded
+    if (this.cardPool && this.cardPool.cards.length > 0) {
+      try {
+        const { tierStore } = await import('../stores/tierStore.js');
+        await tierStore.initialize(this.cardPool.cards);
+        console.log('Tier system initialized');
+      } catch (error) {
+        console.warn('Failed to initialize tier system:', error);
+      }
+    }
+    
     // Start auto-opening if enabled (after state is loaded)
     this.startAutoOpening();
     

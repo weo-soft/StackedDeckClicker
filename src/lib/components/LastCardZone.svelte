@@ -213,7 +213,6 @@
     </div>
   {:else}
     <div class="card-display empty">
-      <p class="no-card">No card drawn yet</p>
     </div>
   {/if}
 </div>
@@ -396,13 +395,6 @@
 
   .card-info-line :global(.value-part) {
     color: #ffd700;
-  }
-
-  .no-card {
-    margin: 0;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
-    font-style: italic;
   }
 
   /* Path of Exile styling metadata classes */
