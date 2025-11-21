@@ -82,6 +82,96 @@ export class AudioService {
   }
 
   /**
+   * Play sound for card drop based on tier.
+   * Falls back to qualityTier-based sound if tier sound not available.
+   * @param tierId - Tier identifier
+   * @param qualityTier - Fallback quality tier if tier sound unavailable
+   */
+  playTierSound(tierId: string, qualityTier: QualityTier): void {
+    if (this.muted) return;
+
+    // Try to get tier configuration (dynamic import to avoid circular dependencies)
+    // Use void to fire-and-forget the promise
+    void import('../services/tierService.js').then(({ tierService }) => {
+      const tierConfig = tierService.getTierConfiguration(tierId);
+      
+      // Check if tier sound is enabled
+      if (!tierConfig?.sound.enabled) {
+        this.playCardDropSound(qualityTier);
+        return;
+      }
+
+      // Try to play tier-specific sound
+      if (tierConfig.sound.filePath) {
+        const soundKey = `tier-${tierId}`;
+        const sound = this.sounds.get(soundKey);
+        if (sound) {
+          const volume = tierConfig.sound.volume ?? 1.0;
+          sound.volume(volume * this.volume);
+          sound.play();
+          return;
+        }
+      }
+      
+      // Fallback to qualityTier-based sound
+      this.playCardDropSound(qualityTier);
+    }).catch(() => {
+      // Tier system not available, fall through to qualityTier sound
+      this.playCardDropSound(qualityTier);
+    });
+  }
+
+  /**
+   * Preload tier sound files.
+   * @param tierIds - Array of tier IDs to preload sounds for
+   */
+  async preloadTierSounds(tierIds: string[]): Promise<void> {
+    const loadPromises: Promise<void>[] = [];
+
+    try {
+      const { tierService } = await import('../services/tierService.js');
+      
+      for (const tierId of tierIds) {
+        const tierConfig = tierService.getTierConfiguration(tierId);
+        
+        if (tierConfig?.sound.filePath) {
+          const soundKey = `tier-${tierId}`;
+          if (!this.sounds.has(soundKey)) {
+            const promise = new Promise<void>((resolve) => {
+              const howl = new Howl({
+                src: [tierConfig.sound.filePath!],
+                volume: (tierConfig.sound.volume ?? 1.0) * this.volume,
+                onload: () => {
+                  this.sounds.set(soundKey, howl);
+                  resolve();
+                },
+                onloaderror: () => {
+                  console.warn(`Failed to load tier sound for ${tierId}`);
+                  resolve();
+                }
+              });
+            });
+            loadPromises.push(promise);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to preload tier sounds:', error);
+    }
+
+    await Promise.all(loadPromises);
+  }
+
+  /**
+   * Check if tier sound is available.
+   * @param tierId - Tier identifier
+   * @returns true if sound is loaded and available
+   */
+  isTierSoundAvailable(tierId: string): boolean {
+    return this.sounds.has(`tier-${tierId}`);
+  }
+
+  /**
    * Play sound for upgrade purchase.
    */
   playUpgradeSound(): void {

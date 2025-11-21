@@ -1,6 +1,11 @@
 import type { DivinationCard } from '../models/Card.js';
 import type { QualityTier } from '../models/types.js';
 import type { Scene } from './scene.js';
+import { tierService } from '../services/tierService.js';
+import type { ColorScheme } from '../models/Tier.js';
+
+// Cache to track if we've logged initialization status
+let tierInitLogged = false;
 
 export interface CardAnimation {
   card: DivinationCard;
@@ -283,48 +288,96 @@ export function drawCard(
 }
 
 /**
- * Get label style based on card value (from lowest to highest):
- * - The Dragon: dark/transparent background, dark blue text
- * - The Trial: cyan background, black text
- * - The Patient: cyan background, black text
- * - The Fortunate: royal blue background, white text
+ * Get label style from tier system, with fallback to value-based style.
  */
-function getLabelStyle(cardValue: number): {
+function getLabelStyle(card: DivinationCard): {
   backgroundColor: string;
   textColor: string;
   borderColor: string;
+  borderWidth: number;
   opacity: number;
 } {
+  // Try to get tier color scheme
+  try {
+    // Check if tier service has state (is initialized)
+    const tierState = tierService.getState();
+    if (!tierState) {
+      if (!tierInitLogged) {
+        console.warn('[Tier] Tier service not initialized yet. Labels will use fallback colors until tier system loads.');
+        tierInitLogged = true;
+      }
+    } else {
+      const tier = tierService.getTierForCard(card.name);
+      if (tier && tier.config && tier.config.colorScheme) {
+        const colorScheme = tier.config.colorScheme;
+        // Only log first few cards to avoid console spam
+        if (!tierInitLogged) {
+          console.log(`[Tier] Tier system active! Card "${card.name}" -> Tier "${tier.id}"`, {
+            bg: colorScheme.backgroundColor,
+            text: colorScheme.textColor,
+            border: colorScheme.borderColor,
+            borderWidth: colorScheme.borderWidth
+          });
+          tierInitLogged = true;
+        }
+        return {
+          backgroundColor: colorScheme.backgroundColor,
+          textColor: colorScheme.textColor,
+          borderColor: colorScheme.borderColor,
+          borderWidth: colorScheme.borderWidth || 2,
+          opacity: 0.95
+        };
+      } else {
+        if (!tierInitLogged) {
+          console.warn(`[Tier] Card "${card.name}" has no tier assignment. Tier:`, tier);
+          tierInitLogged = true;
+        }
+      }
+    }
+  } catch (error) {
+    // Tier system not available, fall through to default
+    if (!tierInitLogged) {
+      console.warn(`[Tier] Lookup failed, using default label style:`, error);
+      tierInitLogged = true;
+    }
+  }
+
+  // Fallback to value-based style (original behavior)
+  const cardValue = card.value;
   if (cardValue <= 50) {
     // The Dragon (lowest) - solid black background, light blue text and border
     return {
-      backgroundColor: '#000000', // Solid black
-      textColor: '#60a5fa', // Light blue text
-      borderColor: '#60a5fa', // Light blue border
+      backgroundColor: '#000000',
+      textColor: '#60a5fa',
+      borderColor: '#60a5fa',
+      borderWidth: 1,
       opacity: 0.95
     };
   } else if (cardValue <= 200) {
     // The Trial - cyan background, black text
     return {
-      backgroundColor: '#00ffff', // Cyan
-      textColor: '#000000', // Black text
-      borderColor: '#000000', // Black border
+      backgroundColor: '#00ffff',
+      textColor: '#000000',
+      borderColor: '#000000',
+      borderWidth: 1,
       opacity: 0.95
     };
   } else if (cardValue <= 1000) {
     // The Patient - cyan background, black text (same as Trial)
     return {
-      backgroundColor: '#00ffff', // Cyan
-      textColor: '#000000', // Black text
-      borderColor: '#000000', // Black border
+      backgroundColor: '#00ffff',
+      textColor: '#000000',
+      borderColor: '#000000',
+      borderWidth: 1,
       opacity: 0.95
     };
   } else {
     // The Fortunate (highest) - royal blue background, white text
     return {
-      backgroundColor: '#4169e1', // Royal blue
-      textColor: '#ffffff', // White text
-      borderColor: '#000000', // Black border
+      backgroundColor: '#4169e1',
+      textColor: '#ffffff',
+      borderColor: '#000000',
+      borderWidth: 1,
       opacity: 0.95
     };
   }
@@ -358,18 +411,22 @@ export function drawCardLabel(
   const labelX = animation.x + animation.labelX - labelWidth / 2;
   const labelY = animation.y + animation.labelY;
 
-  // Get label style based on card value
-  const style = getLabelStyle(animation.card.value);
+  // Get label style from tier system (with fallback)
+  const style = getLabelStyle(animation.card);
 
   // Draw label background
   ctx.globalAlpha = animation.labelAlpha * style.opacity;
   ctx.fillStyle = style.backgroundColor;
-  ctx.strokeStyle = style.borderColor;
-  ctx.lineWidth = 1; // Thin black border
   
   // Draw rectangle (no rounded corners)
   ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
-  ctx.strokeRect(labelX, labelY, labelWidth, labelHeight);
+  
+  // Only draw border if borderWidth > 0
+  if (style.borderWidth > 0) {
+    ctx.strokeStyle = style.borderColor;
+    ctx.lineWidth = style.borderWidth;
+    ctx.strokeRect(labelX, labelY, labelWidth, labelHeight);
+  }
 
   // Draw card name text
   ctx.globalAlpha = animation.labelAlpha;

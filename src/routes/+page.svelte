@@ -5,6 +5,8 @@
   import OfflineProgress from '$lib/components/OfflineProgress.svelte';
   import GameAreaLayout from '$lib/components/GameAreaLayout.svelte';
   import AmbientSceneZone from '$lib/components/AmbientSceneZone.svelte';
+  import TierSettings from '$lib/components/TierSettings.svelte';
+  import TierManagement from '$lib/components/TierManagement.svelte';
   import { audioService } from '$lib/audio/audioManager.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '$lib/utils/errors.js';
   import { createDefaultGameState } from '$lib/utils/defaultGameState.js';
@@ -18,6 +20,9 @@
   let debugMode = false;
   let gameAreaLayout: GameAreaLayout | null = null;
   let ambientSceneZone: AmbientSceneZone | null = null;
+  let showTierSettings = false;
+  let showTierManagement = false;
+  let activeModal: 'settings' | 'management' | null = null;
 
   // Use reactive statement for store
   $: currentState = $gameState;
@@ -96,10 +101,20 @@
             
             // Add all cards to ambient scene zone with slight delay for visual effect
             if (ambientSceneZone) {
+              const { tierStore } = await import('$lib/stores/tierStore.js');
               results.forEach((result, index) => {
                 setTimeout(() => {
-                  ambientSceneZone?.addCard(result.card);
-                  audioService.playCardDropSound(result.card.qualityTier);
+                  const shouldDisplay = tierStore.shouldDisplayCard(result.card.name);
+                  if (shouldDisplay) {
+                    ambientSceneZone?.addCard(result.card);
+                    // Play tier sound or fallback to qualityTier sound
+                    const tier = tierStore.getTierForCard(result.card.name);
+                    if (tier) {
+                      audioService.playTierSound(tier.id, result.card.qualityTier);
+                    } else {
+                      audioService.playCardDropSound(result.card.qualityTier);
+                    }
+                  }
                 }, index * 50); // 50ms delay between each card
               });
             }
@@ -109,15 +124,32 @@
       }
       
       const result = await gameStateService.openDeck();
-      lastCardDraw = result;
       
-      // Add card to ambient scene zone
-      if (ambientSceneZone) {
-        ambientSceneZone.addCard(result.card);
+      // Check if card should be displayed based on tier
+      const { tierStore } = await import('$lib/stores/tierStore.js');
+      const shouldDisplay = tierStore.shouldDisplayCard(result.card.name);
+      
+      if (shouldDisplay) {
+        lastCardDraw = result;
+        
+        // Add card to ambient scene zone
+        if (ambientSceneZone) {
+          ambientSceneZone.addCard(result.card);
+        }
+        
+        // Play tier sound or fallback to qualityTier sound
+        const tier = tierStore.getTierForCard(result.card.name);
+        if (tier) {
+          audioService.playTierSound(tier.id, result.card.qualityTier);
+        } else {
+          // Fallback to qualityTier sound if tier not found
+          audioService.playCardDropSound(result.card.qualityTier);
+        }
+      } else {
+        // Card is processed but not displayed (tier is disabled)
+        // Still update game state, but don't show card
+        console.log(`Card ${result.card.name} dropped but tier is disabled`);
       }
-      
-      // Play card drop sound
-      audioService.playCardDropSound(result.card.qualityTier);
       
       // Restore focus for keyboard navigation
       if (button) {
@@ -195,8 +227,121 @@
         {errorMessage}
       </div>
     {/if}
+
+    <!-- Tier Management Buttons -->
+    <div class="tier-buttons">
+      <button
+        class="tier-button"
+        on:click={() => {
+          activeModal = 'settings';
+          showTierSettings = true;
+        }}
+        aria-label="Open tier settings"
+      >
+        Tier Settings
+      </button>
+      <button
+        class="tier-button"
+        on:click={() => {
+          activeModal = 'management';
+          showTierManagement = true;
+        }}
+        aria-label="Open tier management"
+      >
+        Tier Management
+      </button>
+    </div>
   {:else}
     <p>Game state not available</p>
+  {/if}
+
+  <!-- Tier Settings Modal -->
+  {#if showTierSettings}
+    <div
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tier-settings-title"
+      on:click|self={() => {
+        showTierSettings = false;
+        activeModal = null;
+      }}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          showTierSettings = false;
+          activeModal = null;
+        }
+      }}
+      tabindex="-1"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="tier-settings-title">Tier Settings</h2>
+          <button
+            class="modal-close"
+            on:click={() => {
+              showTierSettings = false;
+              activeModal = null;
+            }}
+            aria-label="Close tier settings"
+          >
+            ×
+          </button>
+        </div>
+        <div class="modal-body">
+          <TierSettings
+            tierId={null}
+            onTierUpdated={(tierId) => {
+              console.log('Tier updated:', tierId);
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Tier Management Modal -->
+  {#if showTierManagement}
+    <div
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tier-management-title"
+      on:click|self={() => {
+        showTierManagement = false;
+        activeModal = null;
+      }}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          showTierManagement = false;
+          activeModal = null;
+        }
+      }}
+      tabindex="-1"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="tier-management-title">Tier Management</h2>
+          <button
+            class="modal-close"
+            on:click={() => {
+              showTierManagement = false;
+              activeModal = null;
+            }}
+            aria-label="Close tier management"
+          >
+            ×
+          </button>
+        </div>
+        <div class="modal-body">
+          <TierManagement
+            onAssignmentChanged={(cardName, tierId) => {
+              console.log('Card assignment changed:', cardName, tierId);
+            }}
+          />
+        </div>
+      </div>
+    </div>
   {/if}
 </main>
 
@@ -310,6 +455,94 @@
     border-radius: 4px;
     background-color: #333;
     color: white;
+  }
+
+  .tier-buttons {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 1000;
+  }
+
+  .tier-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #4a9eff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .tier-button:hover {
+    background-color: #3a8eef;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+  }
+
+  .modal-content {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    max-width: 900px;
+    max-height: 90vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #333;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: #fff;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .modal-close:hover {
+    background-color: #333;
+  }
+
+  .modal-body {
+    overflow-y: auto;
+    padding: 0;
   }
 
   .debug-button {
