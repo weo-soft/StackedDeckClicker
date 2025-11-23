@@ -11,6 +11,8 @@
   export let width: number;
   export let height: number;
   export let lastCardDraw: CardDrawResult | null = null;
+  /** Clicked card takes precedence over lastCardDraw when provided */
+  export let clickedCard: CardDrawResult | null = null;
   export let style: string = '';
 
   let cardDisplayData: CardDisplayData | null = null;
@@ -38,13 +40,24 @@
   // Track the current card to avoid re-processing
   let currentCardId: string | null = null;
 
+  // Determine which card to display (clickedCard takes precedence)
+  $: displayCard = clickedCard || lastCardDraw;
+
   // Handle card draw changes - reactive statement
-  $: if (lastCardDraw) {
-    const cardId = `${lastCardDraw.card.name}-${lastCardDraw.timestamp}`;
-    // Only process if it's a new card
-    if (cardId !== currentCardId) {
-      currentCardId = cardId;
-      loadCardData(lastCardDraw);
+  $: if (displayCard) {
+    // Validate card data
+    if (!displayCard.card || !displayCard.card.name) {
+      console.warn('Invalid card data in LastCardZone:', displayCard);
+      cardDisplayData = null;
+      imageState = { url: null, loading: false, error: true, errorMessage: 'Invalid card data' };
+      currentCardId = null;
+    } else {
+      const cardId = `${displayCard.card.name}-${displayCard.timestamp}`;
+      // Only process if it's a new card
+      if (cardId !== currentCardId) {
+        currentCardId = cardId;
+        loadCardData(displayCard);
+      }
     }
   } else {
     currentCardId = null;

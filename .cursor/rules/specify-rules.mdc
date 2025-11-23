@@ -9,6 +9,10 @@ Auto-generated from all feature plans. Last updated: 2025-11-17
 - Static files in `/static/cards/` directory (card art images, frame, separator) (003-display-dropped-card)
 - TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, localforage 1.10.0, Howler.js 2.2.4 (004-card-tier-filter)
 - IndexedDB via localforage (existing StorageService pattern) (004-card-tier-filter)
+- TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0 + Vite 5.0, localforage 1.10.0 (existing), native fetch API (005-data-auto-update)
+- Browser memory (Map) for runtime cache, IndexedDB via localforage for persistent cache (optional enhancement) (005-data-auto-update)
+- TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, HTML5 Canvas API (006-card-details-click)
+- N/A (in-memory card state, static card data files) (006-card-details-click)
 
 - TypeScript/JavaScript (ES2020+), SvelteKit (latest stable) + SvelteKit, HTML5 Canvas API, localforge (IndexedDB wrapper), Howler.js (audio), seedrandom (PRNG), Vite (build tool) (001-stacked-deck-clicker)
 
@@ -29,9 +33,9 @@ npm test; npm run lint
 TypeScript/JavaScript (ES2020+), SvelteKit (latest stable): Follow standard conventions
 
 ## Recent Changes
+- 006-card-details-click: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, HTML5 Canvas API
+- 005-data-auto-update: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0 + Vite 5.0, localforage 1.10.0 (existing), native fetch API
 - 004-card-tier-filter: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, localforage 1.10.0, Howler.js 2.2.4
-- 003-display-dropped-card: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0
-- 002-game-zone-layout: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Canvas API (native browser)
 
 
 <!-- MANUAL ADDITIONS START -->

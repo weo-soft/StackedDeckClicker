@@ -10,13 +10,35 @@
   import StateInfoZone from './StateInfoZone.svelte';
   import InventoryZone from './InventoryZone.svelte';
   import LastCardZone from './LastCardZone.svelte';
+  import type { CardDrawResult } from '../models/CardDrawResult.js';
 
   export let gameState: GameState;
   export let onDeckOpen: (() => void) | undefined = undefined;
   export let onUpgradePurchase: ((upgradeType: UpgradeType) => void) | undefined = undefined;
   export let onAddDecks: (() => void) | undefined = undefined;
   export let onAddChaos: (() => void) | undefined = undefined;
-  export let lastCardDraw: any | null = null; // CardDrawResult | null
+  export let lastCardDraw: CardDrawResult | null = null;
+
+  // State for clicked card
+  let clickedCard: CardDrawResult | null = null;
+
+  // Handle card label click event from GameCanvas
+  function handleCardLabelClick(event: CustomEvent<CardDrawResult>): void {
+    // Validate event data
+    if (!event.detail || !event.detail.card) {
+      console.warn('Invalid card data in click event:', event.detail);
+      return;
+    }
+    
+    clickedCard = event.detail;
+  }
+
+  // Optional: Clear clicked card when new card is drawn (user preference)
+  // Uncomment if you want clicked card to be cleared when new card is drawn:
+  // $: if (lastCardDraw && clickedCard) {
+  //   // Keep clicked card (user explicitly selected it)
+  //   // Or clear: clickedCard = null;
+  // }
 
   let containerElement: HTMLDivElement;
   // Base 1080p dimensions (1920x1080)
@@ -174,6 +196,7 @@
           height={whiteZone.height}
           {gameState}
           zoneLayout={layout}
+          on:cardLabelClick={handleCardLabelClick}
           style="position: absolute; left: {whiteZone.x}px; top: {whiteZone.y}px; width: {whiteZone.width}px; height: {whiteZone.height}px; z-index: 1;"
           role="region"
           aria-label="Ambient scene zone where cards drop"
@@ -238,6 +261,7 @@
           width={purpleZone.width}
           height={purpleZone.height}
           {lastCardDraw}
+          clickedCard={clickedCard}
           style="position: absolute; left: {purpleZone.x}px; top: {purpleZone.y}px; width: {purpleZone.width}px; height: {purpleZone.height}px; z-index: 20;"
           role="region"
           aria-label="Last card drawn display"

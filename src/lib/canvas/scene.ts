@@ -26,6 +26,7 @@ export class Scene {
   private canvasHeight: number = 0;
   private zoneLayout: ZoneLayout | null = null;
   private zoneBoundaryValidator: ((x: number, y: number) => boolean) | null = null;
+  private hoveredCard: CardAnimation | null = null;
 
   /**
    * Check if a card position overlaps with existing cards.
@@ -622,7 +623,8 @@ export class Scene {
 
     // Second pass: Draw all labels (higher z-layer, always on top)
     for (const card of this.cards) {
-      drawCardLabel(ctx, card);
+      const isHovered = card === this.hoveredCard;
+      drawCardLabel(ctx, card, isHovered);
     }
 
     // Draw glowing border if enabled
@@ -735,6 +737,97 @@ export class Scene {
    */
   getCardCount(): number {
     return this.cards.length;
+  }
+
+  /**
+   * Get the card animation at a given label position.
+   * Performs hit testing against all card labels, returning the topmost match.
+   * Handles edge cases including overlapping labels, faded cards, and invalid coordinates.
+   * 
+   * @param x - X coordinate in canvas space (must be valid number)
+   * @param y - Y coordinate in canvas space (must be valid number)
+   * @returns CardAnimation if label was hit, null otherwise
+   * @throws Does not throw - returns null for invalid inputs
+   */
+  getCardAtLabelPosition(x: number, y: number): CardAnimation | null {
+    // Validate coordinates
+    if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+      return null;
+    }
+
+    if (!this.cards || this.cards.length === 0) {
+      return null;
+    }
+
+    // Iterate in reverse order (newest first, topmost)
+    for (let i = this.cards.length - 1; i >= 0; i--) {
+      const animation = this.cards[i];
+      
+      // Validate animation exists and is valid
+      if (!animation || !animation.card) {
+        continue;
+      }
+      
+      // Skip if card is too faded or removed
+      if (animation.labelAlpha <= 0) {
+        continue;
+      }
+
+      // Validate label dimensions
+      if (!animation.labelWidth || !animation.labelHeight || 
+          animation.labelWidth <= 0 || animation.labelHeight <= 0) {
+        continue;
+      }
+
+      // Calculate absolute label position
+      const labelX = animation.x + animation.labelX - animation.labelWidth / 2;
+      const labelY = animation.y + animation.labelY;
+
+      // Validate calculated positions
+      if (isNaN(labelX) || isNaN(labelY)) {
+        continue;
+      }
+
+      // Check if point is within label bounds
+      if (
+        x >= labelX &&
+        x <= labelX + animation.labelWidth &&
+        y >= labelY &&
+        y <= labelY + animation.labelHeight
+      ) {
+        return animation;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Set the hovered card animation for visual feedback.
+   * 
+   * @param cardAnimation - CardAnimation being hovered, or null to clear hover
+   */
+  setHoveredCard(cardAnimation: CardAnimation | null): void {
+    // Store hovered card for visual feedback during rendering
+    // This will be used in the render method to apply hover styles
+    (this as any).hoveredCard = cardAnimation;
+  }
+
+  /**
+   * Get the currently hovered card animation.
+   * 
+   * @returns CardAnimation if hovering, null otherwise
+   */
+  getHoveredCard(): CardAnimation | null {
+    return (this as any).hoveredCard || null;
+  }
+
+  /**
+   * Get all visible cards (for keyboard navigation).
+   * Returns a copy of the cards array.
+   */
+  getCards(): CardAnimation[] {
+    return [...this.cards];
   }
 }
 
