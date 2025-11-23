@@ -390,7 +390,8 @@ function getLabelStyle(card: DivinationCard): {
  */
 export function drawCardLabel(
   ctx: CanvasRenderingContext2D,
-  animation: CardAnimation
+  animation: CardAnimation,
+  isHovered: boolean = false
 ): void {
   ctx.save();
 
@@ -414,17 +415,29 @@ export function drawCardLabel(
   // Get label style from tier system (with fallback)
   const style = getLabelStyle(animation.card);
 
+  // Apply hover effect if hovered
+  let backgroundColor = style.backgroundColor;
+  let borderWidth = style.borderWidth;
+  let borderColor = style.borderColor;
+
+  if (isHovered) {
+    // Lighten background or add border for hover feedback
+    backgroundColor = lightenColor(backgroundColor, 0.2);
+    borderWidth = Math.max(borderWidth, 2);
+    borderColor = '#ffffff';
+  }
+
   // Draw label background
   ctx.globalAlpha = animation.labelAlpha * style.opacity;
-  ctx.fillStyle = style.backgroundColor;
+  ctx.fillStyle = backgroundColor;
   
   // Draw rectangle (no rounded corners)
   ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
   
   // Only draw border if borderWidth > 0
-  if (style.borderWidth > 0) {
-    ctx.strokeStyle = style.borderColor;
-    ctx.lineWidth = style.borderWidth;
+  if (borderWidth > 0) {
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = borderWidth;
     ctx.strokeRect(labelX, labelY, labelWidth, labelHeight);
   }
 
@@ -441,6 +454,21 @@ export function drawCardLabel(
   );
 
   ctx.restore();
+}
+
+/**
+ * Helper function to lighten a color.
+ */
+function lightenColor(color: string, amount: number): string {
+  // Simple color lightening - can be enhanced
+  if (color.startsWith('#')) {
+    const num = parseInt(color.slice(1), 16);
+    const r = Math.min(255, ((num >> 16) & 0xff) + Math.floor(255 * amount));
+    const g = Math.min(255, ((num >> 8) & 0xff) + Math.floor(255 * amount));
+    const b = Math.min(255, (num & 0xff) + Math.floor(255 * amount));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  }
+  return color;
 }
 
 /**

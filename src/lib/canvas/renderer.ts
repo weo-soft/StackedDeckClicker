@@ -13,6 +13,10 @@ export class CanvasService {
   private animationFrameId: number | null = null;
   private isRunning: boolean = false;
   private lastTime: number = 0;
+  private clickCallback: ((cardAnimation: import('./cardAnimation.js').CardAnimation) => void) | null = null;
+  private hoverDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastHoverCheck: number = 0;
+  private hoveredCard: import('./cardAnimation.js').CardAnimation | null = null;
 
   /**
    * Initialize canvas and start render loop.
@@ -113,9 +117,131 @@ export class CanvasService {
    */
   destroy(): void {
     this.stop();
+    if (this.hoverDebounceTimer) {
+      clearTimeout(this.hoverDebounceTimer);
+      this.hoverDebounceTimer = null;
+    }
     this.canvas = null;
     this.ctx = null;
     this.scene = null;
+    this.clickCallback = null;
+    this.hoveredCard = null;
+  }
+
+  /**
+   * Handle click event on canvas.
+   * Performs label hit testing and emits result via callback.
+   * Validates coordinates and handles errors gracefully.
+   * 
+   * @param x - Click X coordinate in canvas space (must be within canvas bounds)
+   * @param y - Click Y coordinate in canvas space (must be within canvas bounds)
+   * @param event - Original mouse event
+   * @returns CardAnimation if label was clicked, null otherwise
+   * @throws Does not throw - returns null for invalid inputs, logs errors
+   */
+  handleClick(x: number, y: number, event: MouseEvent): import('./cardAnimation.js').CardAnimation | null {
+    if (!this.scene || !this.canvas) {
+      return null;
+    }
+
+    // Validate coordinates
+    if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+      return null;
+    }
+
+    if (x < 0 || x > this.canvas.width || y < 0 || y > this.canvas.height) {
+      return null;
+    }
+
+    // Get card at position (handles edge cases internally)
+    const cardAnimation = this.scene.getCardAtLabelPosition(x, y);
+    
+    // Validate card still exists before calling callback
+    if (cardAnimation && this.clickCallback) {
+      try {
+        this.clickCallback(cardAnimation);
+      } catch (error) {
+        console.error('Error in click callback:', error);
+        // Don't throw - continue gracefully
+      }
+    }
+
+    return cardAnimation;
+  }
+
+  /**
+   * Handle mouse move event on canvas for hover detection.
+   * Updates hover state and cursor style with 50ms debouncing for performance.
+   * 
+   * @param x - Mouse X coordinate in canvas space
+   * @param y - Mouse Y coordinate in canvas space
+   * @param event - Original mouse event
+   * @throws Does not throw - handles errors gracefully
+   */
+  handleMouseMove(x: number, y: number, event: MouseEvent): void {
+    if (!this.scene || !this.canvas) {
+      return;
+    }
+
+    // Debounce hover checks (50ms)
+    if (this.hoverDebounceTimer) {
+      clearTimeout(this.hoverDebounceTimer);
+    }
+
+    this.hoverDebounceTimer = setTimeout(() => {
+      const cardAnimation = this.scene?.getCardAtLabelPosition(x, y) || null;
+      
+      if (cardAnimation !== this.hoveredCard) {
+        this.hoveredCard = cardAnimation;
+        this.scene?.setHoveredCard(cardAnimation);
+        this.updateCursorStyle();
+      }
+
+      this.lastHoverCheck = Date.now();
+    }, 50);
+  }
+
+  /**
+   * Handle mouse leave event on canvas.
+   * Clears hover state and resets cursor.
+   */
+  handleMouseLeave(): void {
+    if (this.hoverDebounceTimer) {
+      clearTimeout(this.hoverDebounceTimer);
+      this.hoverDebounceTimer = null;
+    }
+
+    this.hoveredCard = null;
+    this.scene?.setHoveredCard(null);
+    this.updateCursorStyle();
+  }
+
+  /**
+   * Set callback for click events.
+   * Called when a label is successfully clicked.
+   * 
+   * @param callback - Function called with CardAnimation when label is clicked
+   */
+  setClickCallback(callback: ((cardAnimation: import('./cardAnimation.js').CardAnimation) => void) | null): void {
+    this.clickCallback = callback;
+  }
+
+  /**
+   * Update canvas cursor style based on hover state.
+   */
+  private updateCursorStyle(): void {
+    if (this.canvas) {
+      this.canvas.style.cursor = this.hoveredCard ? 'pointer' : 'default';
+    }
+  }
+
+  /**
+   * Get all visible cards (for keyboard navigation).
+   * 
+   * @returns Array of CardAnimation objects
+   */
+  getCards(): import('./cardAnimation.js').CardAnimation[] {
+    return this.scene?.getCards() || [];
   }
 
   /**

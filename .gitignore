@@ -66,3 +66,4 @@ playwright/.cache/
 # TypeScript
 *.tsbuildinfo
 
+/example_files

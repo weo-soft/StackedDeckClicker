@@ -6,6 +6,9 @@
   import { zoneLayoutService } from '../services/zoneLayoutService.js';
   import { ZoneType } from '../models/ZoneLayout.js';
 
+  import { createEventDispatcher } from 'svelte';
+  import type { CardDrawResult } from '../models/CardDrawResult.js';
+
   export let width: number;
   export let height: number;
   export let gameState: GameState | undefined = undefined;
@@ -14,6 +17,14 @@
   export let style: string = '';
 
   let gameCanvas: GameCanvas | null = null;
+
+  const dispatch = createEventDispatcher<{
+    cardLabelClick: CardDrawResult;
+  }>();
+
+  function handleCardLabelClick(event: CustomEvent<CardDrawResult>): void {
+    dispatch('cardLabelClick', event.detail);
+  }
 
   // Create zone boundary validator function
   // Converts canvas coordinates to container coordinates for zone validation
@@ -64,7 +75,14 @@
   role="region"
   aria-label="Ambient scene zone"
 >
-  <GameCanvas bind:this={gameCanvas} {width} {height} {zoneLayout} {zoneBoundaryValidator} />
+  <GameCanvas 
+    bind:this={gameCanvas} 
+    {width} 
+    {height} 
+    {zoneLayout} 
+    {zoneBoundaryValidator}
+    on:cardLabelClick={handleCardLabelClick}
+  />
 </div>
 
 <style>
