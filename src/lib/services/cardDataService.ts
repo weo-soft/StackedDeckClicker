@@ -1,5 +1,6 @@
-import { resolvePath } from '../utils/paths.js';
 import type { FullCardData } from '../models/CardDisplayData.js';
+import { dataUpdateService } from './dataUpdateService.js';
+import { resolvePath } from '../utils/paths.js';
 
 let cardsDataCache: FullCardData[] | null = null;
 
@@ -18,11 +19,20 @@ export class CardDataService {
     }
 
     try {
-      const response = await fetch(resolvePath('/cards/cards.json'));
-      if (!response.ok) {
-        throw new Error(`Failed to load cards.json: ${response.statusText}`);
-      }
-      const data = await response.json() as FullCardData[];
+      // Helper to create local import function
+      const createLocalImport = async () => {
+        const response = await fetch(resolvePath('/cards/cards.json'));
+        if (!response.ok) {
+          throw new Error(`Failed to load cards.json: ${response.statusText}`);
+        }
+        const data = await response.json() as FullCardData[];
+        return { default: data };
+      };
+
+      const data = await dataUpdateService.fetchDataWithFallback<FullCardData[]>(
+        'divinationCardDetails.json',
+        createLocalImport
+      );
       cardsDataCache = data;
       return cardsDataCache;
     } catch (error) {

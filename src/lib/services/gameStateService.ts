@@ -327,6 +327,14 @@ export class GameStateService {
       }
     }
 
+    // Start automatic data updates
+    try {
+      const { dataUpdateService } = await import('./dataUpdateService.js');
+      dataUpdateService.startAutomaticUpdates();
+    } catch (error) {
+      console.warn('Failed to start automatic data updates:', error);
+    }
+
     // Then try to load from storage asynchronously (non-blocking)
     try {
       const storageAvailable = await Promise.race([
