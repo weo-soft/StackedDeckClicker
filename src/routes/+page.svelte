@@ -7,9 +7,11 @@
   import AmbientSceneZone from '$lib/components/AmbientSceneZone.svelte';
   import TierSettings from '$lib/components/TierSettings.svelte';
   import TierManagement from '$lib/components/TierManagement.svelte';
+  import DataVersionOverlay from '$lib/components/DataVersionOverlay.svelte';
   import { audioService } from '$lib/audio/audioManager.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '$lib/utils/errors.js';
   import { createDefaultGameState } from '$lib/utils/defaultGameState.js';
+  import { storageService } from '$lib/services/storageService.js';
   import type { CardDrawResult } from '$lib/models/CardDrawResult.js';
   import type { OfflineProgressionResult } from '$lib/models/OfflineProgressionResult.js';
 
@@ -22,7 +24,9 @@
   let ambientSceneZone: AmbientSceneZone | null = null;
   let showTierSettings = false;
   let showTierManagement = false;
-  let activeModal: 'settings' | 'management' | null = null;
+  let showDataVersion = false;
+  let activeModal: 'settings' | 'management' | 'dataVersion' | null = null;
+  let showResetConfirmation = false;
 
   // Use reactive statement for store
   $: currentState = $gameState;
@@ -184,6 +188,36 @@
       console.error('Add chaos error:', error);
     }
   }
+
+  function handleResetClick() {
+    showResetConfirmation = true;
+  }
+
+  async function handleResetConfirm() {
+    try {
+      errorMessage = null;
+      
+      // Clear all storage (game state and tier configurations)
+      // Note: storageService.clearAll() clears the entire localforage database,
+      // which includes both game state and tier configurations
+      await storageService.clearAll();
+      
+      // Close confirmation dialog before reload
+      showResetConfirmation = false;
+      
+      // Reload the page to fully reinitialize everything
+      // This ensures all services and stores are properly reset
+      window.location.reload();
+    } catch (error) {
+      errorMessage = error instanceof Error ? error.message : 'Failed to reset game state';
+      console.error('Reset error:', error);
+      showResetConfirmation = false;
+    }
+  }
+
+  function handleResetCancel() {
+    showResetConfirmation = false;
+  }
 </script>
 
 <main>
@@ -250,6 +284,23 @@
       >
         Tier Management
       </button>
+      <button
+        class="tier-button"
+        on:click={() => {
+          activeModal = 'dataVersion';
+          showDataVersion = true;
+        }}
+        aria-label="View data version"
+      >
+        Data Version
+      </button>
+      <button
+        class="tier-button reset-button"
+        on:click={handleResetClick}
+        aria-label="Reset game state"
+      >
+        Reset Game
+      </button>
     </div>
   {:else}
     <p>Game state not available</p>
@@ -265,6 +316,12 @@
       on:click|self={() => {
         showTierSettings = false;
         activeModal = null;
+      }}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          showTierSettings = false;
+          activeModal = null;
+        }
       }}
       on:keydown={(e) => {
         if (e.key === 'Escape') {
@@ -317,6 +374,12 @@
           activeModal = null;
         }
       }}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          showTierManagement = false;
+          activeModal = null;
+        }
+      }}
       tabindex="-1"
     >
       <div class="modal-content">
@@ -343,6 +406,67 @@
       </div>
     </div>
   {/if}
+
+  <!-- Reset Confirmation Modal -->
+  {#if showResetConfirmation}
+    <div
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reset-confirmation-title"
+      on:click|self={handleResetCancel}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          handleResetCancel();
+        }
+      }}
+      tabindex="-1"
+    >
+      <div class="modal-content reset-modal">
+        <div class="modal-header">
+          <h2 id="reset-confirmation-title">Reset Game State</h2>
+          <button
+            class="modal-close"
+            on:click={handleResetCancel}
+            aria-label="Close reset confirmation"
+          >
+            ×
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="reset-warning">
+            Are you sure you want to reset the game state? This will:
+          </p>
+          <ul class="reset-list">
+            <li>Clear all saved game progress (score, decks, upgrades)</li>
+            <li>Clear all tier configurations and card assignments</li>
+            <li>Reset all customizations</li>
+            <li>Reset card collection</li>
+          </ul>
+          <p class="reset-warning"><strong>This action cannot be undone!</strong></p>
+          <div class="reset-buttons">
+            <button
+              class="reset-confirm-button"
+              on:click={handleResetConfirm}
+              aria-label="Confirm reset"
+            >
+              Yes, Reset Game
+            </button>
+            <button
+              class="reset-cancel-button"
+              on:click={handleResetCancel}
+              aria-label="Cancel reset"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Data Version Overlay -->
+  <DataVersionOverlay bind:isOpen={showDataVersion} />
 </main>
 
 <style>
@@ -482,6 +606,14 @@
     background-color: #3a8eef;
   }
 
+  .reset-button {
+    background-color: #f44336;
+  }
+
+  .reset-button:hover {
+    background-color: #d32f2f;
+  }
+
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -589,6 +721,66 @@
     font-size: 0.8rem;
     color: #888;
     margin-top: 0.5rem;
+  }
+
+  .reset-modal {
+    max-width: 500px;
+  }
+
+  .reset-warning {
+    color: #fff;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+
+  .reset-list {
+    color: #fff;
+    margin: 1rem 0;
+    padding-left: 2rem;
+    line-height: 1.8;
+  }
+
+  .reset-list li {
+    margin: 0.5rem 0;
+  }
+
+  .reset-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+  }
+
+  .reset-confirm-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .reset-confirm-button:hover {
+    background-color: #d32f2f;
+  }
+
+  .reset-cancel-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .reset-cancel-button:hover {
+    background-color: #777;
   }
 
   /* Responsive design for mobile */

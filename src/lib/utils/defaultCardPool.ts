@@ -2,6 +2,7 @@ import type { CardPool } from '../models/CardPool.js';
 import type { DivinationCard } from '../models/Card.js';
 import type { QualityTier } from '../models/types.js';
 import { computeCumulativeWeights } from './weightedRandom.js';
+import { dataUpdateService } from '../services/dataUpdateService.js';
 import { resolvePath } from './paths.js';
 
 /**
@@ -42,19 +43,27 @@ function getQualityTierFromValue(chaosValue: number): QualityTier {
  */
 export async function createDefaultCardPool(): Promise<CardPool> {
   try {
-    // Load cards data
-    const cardsResponse = await fetch(resolvePath('/cards/cards.json'));
-    if (!cardsResponse.ok) {
-      throw new Error(`Failed to load cards.json: ${cardsResponse.statusText}`);
-    }
-    const cardsData: CardData[] = await cardsResponse.json();
+    // Helper to create local import function
+    const createLocalImport = <T>(staticPath: string) => async () => {
+      const response = await fetch(resolvePath(staticPath));
+      if (!response.ok) {
+        throw new Error(`Failed to load ${staticPath}: ${response.statusText}`);
+      }
+      const data = await response.json() as T;
+      return { default: data };
+    };
 
-    // Load card values data
-    const valuesResponse = await fetch(resolvePath('/cards/cardValues.json'));
-    if (!valuesResponse.ok) {
-      throw new Error(`Failed to load cardValues.json: ${valuesResponse.statusText}`);
-    }
-    const valuesData: CardValueData[] = await valuesResponse.json();
+    // Load cards data using data update service
+    const cardsData = await dataUpdateService.fetchDataWithFallback<CardData[]>(
+      'divinationCardDetails.json',
+      createLocalImport('/cards/cards.json')
+    );
+
+    // Load card values data using data update service
+    const valuesData = await dataUpdateService.fetchDataWithFallback<CardValueData[]>(
+      'divinationCardPrices.json',
+      createLocalImport('/cards/cardValues.json')
+    );
 
     // Create a map of detailsId -> chaosValue for quick lookup
     const valueMap = new Map<string, number>();
