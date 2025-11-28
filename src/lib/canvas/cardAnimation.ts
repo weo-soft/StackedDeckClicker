@@ -27,6 +27,15 @@ export interface CardAnimation {
   labelHeight: number; // Label height (cached for collision detection)
   targetLabelX: number; // Target X position for smooth movement
   targetLabelY: number; // Target Y position for smooth movement
+  /** Light beam effect state */
+  /** Beam color from tier configuration (hex format, e.g., "#FF0000"). Null if no beam configured. */
+  beamColor: string | null;
+  /** Whether beam should be displayed (from tier lightBeam.enabled configuration) */
+  beamEnabled: boolean;
+  /** Beam age in milliseconds (starts at 0 when card is dropped, increments each frame, used for pulsing animation) */
+  beamAge: number;
+  /** Current beam height in pixels (calculated based on canvas size, constant for pulsing beams) */
+  beamHeight: number;
 }
 
 /**
@@ -64,8 +73,39 @@ export function createCardAnimation(
   // Rarity-based glow
   const { glowIntensity, glowColor } = getRarityGlow(card.qualityTier);
 
+  // Initialize beam state from tier configuration
+  let beamColor: string | null = null;
+  let beamEnabled = false;
+  
+  try {
+    const tier = tierService.getTierForCard(card.name);
+    if (tier?.config?.lightBeam) {
+      beamEnabled = tier.config.lightBeam.enabled;
+      beamColor = tier.config.lightBeam.color;
+      if (import.meta.env.DEV && beamEnabled) {
+        console.log(`[Beam] Card "${card.name}" - beam enabled: ${beamEnabled}, color: ${beamColor}, tier: ${tier.id}`);
+      }
+    } else if (tier) {
+      // Tier exists but no lightBeam config - this shouldn't happen with new defaults, but log it
+      if (import.meta.env.DEV) {
+        console.warn(`[Beam] Card "${card.name}" in tier "${tier.id}" has no lightBeam config`);
+      }
+    }
+    // If tier exists but has no lightBeam property, use defaults (enabled: false, color: null)
+    // This handles backward compatibility with existing tier configurations
+  } catch (error) {
+    // Tier service not available or tier not found, use defaults
+    // This handles cases where tier service is not initialized or tier is deleted
+    if (import.meta.env.DEV) {
+      console.warn('[Beam] Tier service not available for beam config, using defaults:', error);
+    }
+  }
+
   // Initial label position (will be adjusted to avoid overlaps)
   const labelOffsetY = -30; // Start above card
+  
+  // Calculate initial beam height (30-40% of typical canvas height, will be adjusted based on canvas size)
+  const initialBeamHeight = 200;
   
   return {
     card,
@@ -86,7 +126,11 @@ export function createCardAnimation(
     labelWidth: 0, // Will be calculated when drawn
     labelHeight: 26,
     targetLabelX: 0, // Target position for smooth movement
-    targetLabelY: labelOffsetY
+    targetLabelY: labelOffsetY,
+    beamColor,
+    beamEnabled,
+    beamAge: 0,
+    beamHeight: initialBeamHeight
   };
 }
 
@@ -194,6 +238,9 @@ export function updateCardAnimation(
 
   // Update age
   animation.age += deltaTime;
+  
+  // Update beam age
+  animation.beamAge += deltaTime;
 
   // Fade out card object after 30 seconds, but keep label visible longer
   if (animation.age > 30000) {

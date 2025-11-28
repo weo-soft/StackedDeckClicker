@@ -31,6 +31,16 @@ export interface SoundConfiguration {
 }
 
 /**
+ * Light beam effect configuration for a tier group.
+ */
+export interface LightBeamConfiguration {
+  /** Whether light beam effect is enabled for this tier */
+  enabled: boolean;
+  /** Beam color in hex format (e.g., "#FF0000" for red). Null if not configured. */
+  color: string | null;
+}
+
+/**
  * User-customizable properties of a tier (color scheme, drop sound, enabled state).
  */
 export interface TierConfiguration {
@@ -40,6 +50,8 @@ export interface TierConfiguration {
   sound: SoundConfiguration;
   /** Whether cards from this tier should be displayed when dropped */
   enabled: boolean;
+  /** Light beam effect configuration */
+  lightBeam?: LightBeamConfiguration;
   /** Last modification timestamp */
   modifiedAt: number;
 }
