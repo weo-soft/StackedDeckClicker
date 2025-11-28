@@ -15,6 +15,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-17
 - N/A (in-memory card state, static card data files) (006-card-details-click)
 - TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, LocalForage 1.10.0 (for IndexedDB storage) (007-card-scoreboard)
 - IndexedDB via StorageService (existing), in-memory session state (007-card-scoreboard)
+- TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Vitest 1.0.0 (008-tier-settings-redesign)
+- LocalForage (IndexedDB) via tierStorageService (008-tier-settings-redesign)
 
 - TypeScript/JavaScript (ES2020+), SvelteKit (latest stable) + SvelteKit, HTML5 Canvas API, localforge (IndexedDB wrapper), Howler.js (audio), seedrandom (PRNG), Vite (build tool) (001-stacked-deck-clicker)
 
@@ -35,9 +37,9 @@ npm test; npm run lint
 TypeScript/JavaScript (ES2020+), SvelteKit (latest stable): Follow standard conventions
 
 ## Recent Changes
+- 008-tier-settings-redesign: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Vitest 1.0.0
 - 007-card-scoreboard: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, LocalForage 1.10.0 (for IndexedDB storage)
 - 006-card-details-click: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, HTML5 Canvas API
-- 005-data-auto-update: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0 + Vite 5.0, localforage 1.10.0 (existing), native fetch API
 
 
 <!-- MANUAL ADDITIONS START -->
