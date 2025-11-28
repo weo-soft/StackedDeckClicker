@@ -2,7 +2,7 @@ import type { DivinationCard } from '../models/Card.js';
 import type { Tier, TierConfiguration, TierConfigurationState, DefaultTier } from '../models/Tier.js';
 import { tierStorageService } from './tierStorageService.js';
 import { assignCardToDefaultTier, createDefaultTiers } from '../utils/tierAssignment.js';
-import { validateColorScheme } from '../utils/colorValidation.js';
+import { validateColorScheme, validateLightBeamConfig } from '../utils/colorValidation.js';
 
 /**
  * Service for tier management business logic (assignments, lookups, operations).
@@ -54,11 +54,33 @@ export class TierService {
           // Only update if colors don't match (user might have customized)
           // For now, always update default tiers to ensure latest colors
           existingTier.config.colorScheme = defaultTier.config.colorScheme;
+          // Update lightBeam to use new defaults if it's missing or set to old default
+          // Only update if lightBeam is missing or matches old default (enabled: false, color: null)
+          // This allows users who have explicitly configured beams to keep their settings
+          if (!existingTier.config.lightBeam) {
+            existingTier.config.lightBeam = defaultTier.config.lightBeam;
+            updated = true;
+          } else if (
+            existingTier.config.lightBeam.enabled === false &&
+            existingTier.config.lightBeam.color === null
+          ) {
+            // Update old default (disabled, no color) to new default (enabled with color)
+            existingTier.config.lightBeam = defaultTier.config.lightBeam;
+            updated = true;
+          }
           existingTier.modifiedAt = Date.now();
           updated = true;
         } else if (!existingTier) {
           // Missing default tier, add it
           state.tiers.set(tierId, defaultTier);
+          updated = true;
+        }
+      }
+      
+      // Ensure all existing tiers have lightBeam property for backward compatibility
+      for (const tier of state.tiers.values()) {
+        if (!tier.config.lightBeam) {
+          tier.config.lightBeam = { enabled: false, color: null };
           updated = true;
         }
       }
@@ -256,6 +278,14 @@ export class TierService {
       const validation = validateColorScheme(config.colorScheme);
       if (!validation.isValid) {
         throw new Error(validation.error || 'Invalid color scheme');
+      }
+    }
+
+    // Validate light beam configuration if provided
+    if (config.lightBeam) {
+      const beamValidation = validateLightBeamConfig(config.lightBeam);
+      if (!beamValidation.isValid) {
+        throw new Error(beamValidation.error || 'Invalid beam configuration');
       }
     }
 

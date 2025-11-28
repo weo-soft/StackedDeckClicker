@@ -18,8 +18,8 @@
   import { onMount } from 'svelte';
   import { tierStore } from '../stores/tierStore.js';
   import { tierService } from '../services/tierService.js';
-  import type { Tier, ColorScheme, SoundConfiguration } from '../models/Tier.js';
-  import { validateColorScheme } from '../utils/colorValidation.js';
+  import type { Tier, ColorScheme, SoundConfiguration, LightBeamConfiguration } from '../models/Tier.js';
+  import { validateColorScheme, validateLightBeamConfig } from '../utils/colorValidation.js';
   import type { ValidationResult } from '../models/Tier.js';
 
   /**
@@ -39,6 +39,7 @@
   let editingColorScheme: ColorScheme | null = null;
   let editingSound: SoundConfiguration | null = null;
   let editingEnabled: boolean = true;
+  let editingLightBeam: LightBeamConfiguration | null = null;
   let errorMessage: string | null = null;
   let successMessage: string | null = null;
   let colorValidation: ValidationResult | null = null;
@@ -123,6 +124,7 @@
         editingTierId = null;
         editingColorScheme = null;
         editingSound = null;
+        editingLightBeam = null;
       }
     } else {
       expandedTiers.add(tierId);
@@ -148,6 +150,7 @@
       editingColorScheme = { ...tier.config.colorScheme };
       editingSound = { ...tier.config.sound };
       editingEnabled = tier.config.enabled;
+      editingLightBeam = tier.config.lightBeam || { enabled: false, color: null };
       validateCurrentColors();
       errorMessage = null;
       successMessage = null;
@@ -235,6 +238,56 @@
     }
   }
 
+  /**
+   * Handle beam color change from color picker.
+   */
+  function handleBeamColorInput(event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    if (target && editingLightBeam) {
+      editingLightBeam = { ...editingLightBeam, color: target.value };
+    }
+  }
+
+  /**
+   * Handle beam color change from text input.
+   * Validates hex color format before updating.
+   */
+  function handleBeamColorTextInput(event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    if (target && editingLightBeam) {
+      let hexValue = target.value.trim();
+      
+      // Add # prefix if missing
+      if (hexValue && !hexValue.startsWith('#')) {
+        hexValue = `#${hexValue}`;
+      }
+      
+      // Validate hex color format (#RRGGBB or #RGB)
+      const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+      if (hexValue === '' || hexValue === '#') {
+        // Allow empty or just # for user to type
+        editingLightBeam = { ...editingLightBeam, color: hexValue || null };
+      } else if (hexPattern.test(hexValue)) {
+        // Valid hex color
+        editingLightBeam = { ...editingLightBeam, color: hexValue };
+      } else {
+        // Invalid hex color - keep previous value but show error
+        errorMessage = 'Invalid hex color format. Use #RRGGBB (e.g., #FF0000)';
+        // Don't update the color, keep the previous valid value
+      }
+    }
+  }
+
+  /**
+   * Handle beam enabled toggle.
+   */
+  function handleBeamEnabledChange(enabled: boolean) {
+    if (!editingLightBeam) {
+      editingLightBeam = { enabled: false, color: null };
+    }
+    editingLightBeam = { ...editingLightBeam, enabled };
+  }
+
   function handleSoundFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -293,13 +346,23 @@
       return;
     }
 
+    // Validate light beam configuration if present
+    if (editingLightBeam) {
+      const beamValidation = validateLightBeamConfig(editingLightBeam);
+      if (!beamValidation.isValid) {
+        errorMessage = beamValidation.error || 'Invalid beam configuration';
+        return;
+      }
+    }
+
     isSaving = true;
 
     try {
       await tierService.updateTierConfiguration(editingTierId, {
         colorScheme: editingColorScheme,
         sound: editingSound,
-        enabled: editingEnabled
+        enabled: editingEnabled,
+        lightBeam: editingLightBeam
       });
 
       // Refresh store and reload tiers
@@ -335,6 +398,7 @@
       editingColorScheme = { ...tier.config.colorScheme };
       editingSound = { ...tier.config.sound };
       editingEnabled = tier.config.enabled;
+      editingLightBeam = tier.config.lightBeam || { enabled: false, color: null };
       validateCurrentColors();
       errorMessage = null;
     }
@@ -698,6 +762,54 @@
                   </div>
                 </div>
 
+                <!-- Light Beam Effect Configuration -->
+                {#if editingLightBeam}
+                  <div class="light-beam-config">
+                    <h3>Light Beam Effect</h3>
+                    
+                    <!-- Enable/Disable Toggle -->
+                    <div class="beam-toggle">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={editingLightBeam.enabled}
+                          on:change={(e) => handleBeamEnabledChange(e.currentTarget.checked)}
+                          aria-label="Enable light beam effect"
+                        />
+                        Enable light beam effect
+                      </label>
+                    </div>
+                    
+                    <!-- Beam Color Picker (only if enabled) -->
+                    {#if editingLightBeam.enabled}
+                      <div class="beam-color-editor">
+                        <label for="beam-color-{tier.id}">Beam Color:</label>
+                        <div class="color-input-group">
+                          <input
+                            id="beam-color-{tier.id}"
+                            type="color"
+                            value={editingLightBeam.color || '#FF0000'}
+                            on:input={handleBeamColorInput}
+                            aria-label="Beam color picker"
+                          />
+                          <input
+                            type="text"
+                            value={editingLightBeam.color || '#FF0000'}
+                            on:input={handleBeamColorTextInput}
+                            placeholder="#RRGGBB"
+                            aria-label="Beam color hex value"
+                          />
+                        </div>
+                        
+                        <!-- Beam Color Preview -->
+                        <div class="beam-preview" style="background: linear-gradient(to top, {editingLightBeam.color || '#FF0000'}, transparent);">
+                          <p>Beam Preview</p>
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+
                 <!-- Enable/Disable Tier -->
                 <div class="tier-enabled" class:disabled={!editingEnabled}>
                   <h3>Display Settings</h3>
@@ -962,6 +1074,7 @@
 
   .color-scheme-editor h3,
   .sound-config h3,
+  .light-beam-config h3,
   .tier-enabled h3,
   .card-list-section h4 {
     margin-top: 0;
@@ -1043,6 +1156,53 @@
     flex-direction: column;
     gap: 1rem;
     margin-top: 2rem;
+  }
+
+  .light-beam-config {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .beam-toggle {
+    margin-bottom: 1rem;
+  }
+
+  .beam-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .beam-color-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .beam-color-editor label {
+    color: #fff;
+    min-width: 120px;
+  }
+
+  .beam-preview {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #555;
+  }
+
+  .beam-preview p {
+    color: #fff;
+    font-weight: bold;
   }
 
   .sound-input-group {

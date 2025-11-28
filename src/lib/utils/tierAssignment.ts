@@ -601,6 +601,17 @@ export function createDefaultTierConfigurations(): Map<string, TierConfiguration
     }
   };
   
+  // Default beam colors for each tier - distinct, vibrant colors
+  const defaultBeamColors: Record<DefaultTier, string> = {
+    S: '#FFD700',  // Gold - highest tier deserves premium color
+    A: '#FF0000',  // Red - strong, premium color
+    B: '#0000FF',  // Blue - classic blue
+    C: '#00DCF0',  // Cyan - matches tier's background color
+    D: '#00FF00',  // Green - distinct vibrant color
+    E: '#FF8C00',  // Orange - warm, distinct color
+    F: '#9D4EDD'   // Purple - distinct color for lowest tier
+  };
+  
   const defaultTiers: DefaultTier[] = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
   
   for (let i = 0; i < defaultTiers.length; i++) {
@@ -609,6 +620,7 @@ export function createDefaultTierConfigurations(): Map<string, TierConfiguration
       colorScheme: defaultColors[tierId],
       sound: { filePath: null, volume: 1.0, enabled: true },
       enabled: true,
+      lightBeam: { enabled: true, color: defaultBeamColors[tierId] },
       modifiedAt: now
     });
   }

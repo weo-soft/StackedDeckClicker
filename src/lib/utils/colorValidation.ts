@@ -1,4 +1,4 @@
-import type { ColorScheme, ValidationResult } from '../models/Tier.js';
+import type { ColorScheme, ValidationResult, LightBeamConfiguration } from '../models/Tier.js';
 
 /**
  * Calculate contrast ratio between two colors using WCAG formula.
@@ -108,5 +108,24 @@ function getLuminance(rgb: { r: number; g: number; b: number }): number {
  */
 function isValidHexColor(hex: string): boolean {
   return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
+}
+
+/**
+ * Validate light beam configuration.
+ * @param config - Configuration to validate
+ * @returns Validation result
+ */
+export function validateLightBeamConfig(config: LightBeamConfiguration): ValidationResult {
+  // Validate enabled is boolean
+  if (typeof config.enabled !== 'boolean') {
+    return { isValid: false, error: 'enabled must be a boolean' };
+  }
+  
+  // Validate color is valid hex or null
+  if (config.color !== null && !/^#[0-9A-Fa-f]{6}$/.test(config.color)) {
+    return { isValid: false, error: 'color must be a valid hex color code (#RRGGBB) or null' };
+  }
+  
+  return { isValid: true };
 }
 
