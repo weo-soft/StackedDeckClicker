@@ -12,7 +12,7 @@ import type {
   ZoneBoundary,
   ValidationResult
 } from '../models/ZoneLayout.js';
-import { ZoneType, DEFAULT_ZONE_PROPORTIONS, BASE_ZONE_COORDINATES } from '../models/ZoneLayout.js';
+import { ZoneType, DEFAULT_ZONE_PROPORTIONS, RELATIVE_ZONE_COORDINATES } from '../models/ZoneLayout.js';
 import { createBoundary, contains, intersects } from '../utils/zoneBoundaries.js';
 import { performanceMonitor } from '../utils/performance.js';
 
@@ -21,19 +21,17 @@ import { performanceMonitor } from '../utils/performance.js';
  */
 export class ZoneLayoutService {
   /**
-   * Initialize zone layout using absolute coordinates with scaling factor.
+   * Initialize zone layout using relative coordinates that scale with container size.
    * 
-   * @param containerWidth - Width of the game area container (should be 1920 for base)
-   * @param containerHeight - Height of the game area container (should be 1080 for base)
-   * @param scalingFactor - Scaling factor to apply to all coordinates (default: 1.0)
+   * @param containerWidth - Width of the game area container (any positive value)
+   * @param containerHeight - Height of the game area container (any positive value)
    * @param proportions - Optional custom proportions (kept for backward compatibility, not used)
-   * @returns ZoneLayout instance with all zones calculated
+   * @returns ZoneLayout instance with all zones calculated based on actual container dimensions
    * @throws Error if container dimensions are invalid
    */
   initializeLayout(
     containerWidth: number,
     containerHeight: number,
-    scalingFactor: number = 1.0,
     proportions?: ZoneProportions
   ): ZoneLayout {
     return performanceMonitor.trackInteraction(() => {
@@ -41,23 +39,24 @@ export class ZoneLayoutService {
         throw new Error(`Invalid container dimensions: width=${containerWidth}, height=${containerHeight}`);
       }
 
-      if (scalingFactor <= 0) {
-        throw new Error(`Invalid scaling factor: must be > 0, got ${scalingFactor}`);
-      }
-
-      // Use absolute base coordinates and apply scaling factor
-      const base = BASE_ZONE_COORDINATES;
+      // Use relative coordinates (proportions 0.0 to 1.0) and convert to absolute pixels
+      const relative = RELATIVE_ZONE_COORDINATES;
       
-      // Apply scaling factor to all coordinates
-      const scale = (value: number): number => value * scalingFactor;
+      // Convert relative coordinates to absolute pixels based on actual container size
+      const toAbsolute = {
+        x: (relX: number) => relX * containerWidth,
+        y: (relY: number) => relY * containerHeight,
+        width: (relW: number) => relW * containerWidth,
+        height: (relH: number) => relH * containerHeight
+      };
       
-      // Calculate zone positions and sizes using absolute coordinates with scaling
+      // Calculate zone positions and sizes using relative coordinates scaled to container
       const whiteZone: Zone = {
         type: ZoneType.WHITE,
-        x: scale(base.whiteZone.x),
-        y: scale(base.whiteZone.y),
-        width: scale(base.whiteZone.width),
-        height: scale(base.whiteZone.height),
+        x: toAbsolute.x(relative.whiteZone.x),
+        y: toAbsolute.y(relative.whiteZone.y),
+        width: toAbsolute.width(relative.whiteZone.width),
+        height: toAbsolute.height(relative.whiteZone.height),
         content: {
           component: 'GameCanvas',
           props: {},
@@ -67,14 +66,12 @@ export class ZoneLayoutService {
       };
 
       // Yellow zone (Card Drop Area - logical, within white)
-      // Exact position: top-left (800, 380), bottom-right (1120, 700)
-      // This is a 320x320 square
       const yellowZone: Zone = {
         type: ZoneType.YELLOW,
-        x: scale(base.yellowZone.x),
-        y: scale(base.yellowZone.y),
-        width: scale(base.yellowZone.width),
-        height: scale(base.yellowZone.height),
+        x: toAbsolute.x(relative.yellowZone.x),
+        y: toAbsolute.y(relative.yellowZone.y),
+        width: toAbsolute.width(relative.yellowZone.width),
+        height: toAbsolute.height(relative.yellowZone.height),
         content: {
           component: 'DropArea',
           props: {},
@@ -86,10 +83,10 @@ export class ZoneLayoutService {
       // Orange zone (State Information) - bottom of LEFT side
       const orangeZone: Zone = {
         type: ZoneType.ORANGE,
-        x: scale(base.orangeZone.x),
-        y: scale(base.orangeZone.y),
-        width: scale(base.orangeZone.width),
-        height: scale(base.orangeZone.height),
+        x: toAbsolute.x(relative.orangeZone.x),
+        y: toAbsolute.y(relative.orangeZone.y),
+        width: toAbsolute.width(relative.orangeZone.width),
+        height: toAbsolute.height(relative.orangeZone.height),
         content: {
           component: 'StateInfoZone',
           props: {},
@@ -101,10 +98,10 @@ export class ZoneLayoutService {
       // Blue zone (Upgrade Store) - top half of RIGHT side
       const blueZone: Zone = {
         type: ZoneType.BLUE,
-        x: scale(base.blueZone.x),
-        y: scale(base.blueZone.y),
-        width: scale(base.blueZone.width),
-        height: scale(base.blueZone.height),
+        x: toAbsolute.x(relative.blueZone.x),
+        y: toAbsolute.y(relative.blueZone.y),
+        width: toAbsolute.width(relative.blueZone.width),
+        height: toAbsolute.height(relative.blueZone.height),
         content: {
           component: 'UpgradeShop',
           props: {},
@@ -116,10 +113,10 @@ export class ZoneLayoutService {
       // Green zone (Inventory) - bottom half of RIGHT side
       const greenZone: Zone = {
         type: ZoneType.GREEN,
-        x: scale(base.greenZone.x),
-        y: scale(base.greenZone.y),
-        width: scale(base.greenZone.width),
-        height: scale(base.greenZone.height),
+        x: toAbsolute.x(relative.greenZone.x),
+        y: toAbsolute.y(relative.greenZone.y),
+        width: toAbsolute.width(relative.greenZone.width),
+        height: toAbsolute.height(relative.greenZone.height),
         content: {
           component: 'InventoryZone',
           props: {},
@@ -131,10 +128,10 @@ export class ZoneLayoutService {
       // Purple zone (Last Card Display) - overlay on white zone, top-left
       const purpleZone: Zone = {
         type: ZoneType.PURPLE,
-        x: scale(base.purpleZone.x),
-        y: scale(base.purpleZone.y),
-        width: scale(base.purpleZone.width),
-        height: scale(base.purpleZone.height),
+        x: toAbsolute.x(relative.purpleZone.x),
+        y: toAbsolute.y(relative.purpleZone.y),
+        width: toAbsolute.width(relative.purpleZone.width),
+        height: toAbsolute.height(relative.purpleZone.height),
         content: {
           component: 'LastCardZone',
           props: {},
@@ -165,25 +162,23 @@ export class ZoneLayoutService {
   /**
    * Update layout when container is resized.
    * 
-   * @param layout - Current zone layout
+   * @param layout - Current zone layout (not used, kept for API compatibility)
    * @param newWidth - New container width
    * @param newHeight - New container height
-   * @param scalingFactor - Scaling factor to apply (default: 1.0)
-   * @returns Updated ZoneLayout with recalculated zone positions and sizes
+   * @returns Updated ZoneLayout with recalculated zone positions and sizes based on new dimensions
    * @throws Error if new dimensions are invalid
    */
   resizeLayout(
     layout: ZoneLayout,
     newWidth: number,
-    newHeight: number,
-    scalingFactor: number = 1.0
+    newHeight: number
   ): ZoneLayout {
     if (newWidth <= 0 || newHeight <= 0) {
       throw new Error(`Invalid container dimensions: width=${newWidth}, height=${newHeight}`);
     }
 
-    // Reinitialize layout with new dimensions and scaling factor
-    return this.initializeLayout(newWidth, newHeight, scalingFactor);
+    // Reinitialize layout with new dimensions (relative coordinates automatically scale)
+    return this.initializeLayout(newWidth, newHeight);
   }
 
   /**

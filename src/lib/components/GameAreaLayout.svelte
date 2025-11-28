@@ -33,22 +33,34 @@
     clickedCard = event.detail;
   }
 
-  // Optional: Clear clicked card when new card is drawn (user preference)
-  // Uncomment if you want clicked card to be cleared when new card is drawn:
-  // $: if (lastCardDraw && clickedCard) {
-  //   // Keep clicked card (user explicitly selected it)
-  //   // Or clear: clickedCard = null;
-  // }
+  // Track the timestamp of lastCardDraw to detect when it changes
+  let lastCardDrawTimestamp: number | null = null;
+
+  // Clear clicked card when a new card is dropped, so the purple zone shows the newly dropped card
+  // This ensures that when a new card is drawn, it takes precedence over any previously clicked card
+  $: {
+    try {
+      if (lastCardDraw && lastCardDraw.timestamp !== undefined) {
+        const currentTimestamp = lastCardDraw.timestamp;
+        // If lastCardDraw has changed (different timestamp), clear clickedCard
+        if (lastCardDrawTimestamp !== null && lastCardDrawTimestamp !== currentTimestamp && clickedCard) {
+          clickedCard = null;
+        }
+        lastCardDrawTimestamp = currentTimestamp;
+      } else {
+        // If lastCardDraw is cleared, also clear the timestamp
+        lastCardDrawTimestamp = null;
+      }
+    } catch (error) {
+      // Silently handle any errors in the reactive statement to prevent breaking the app
+      console.warn('Error in GameAreaLayout reactive statement:', error);
+    }
+  }
 
   let containerElement: HTMLDivElement;
-  // Base 1080p dimensions (1920x1080)
-  const baseWidth = 1920;
-  const baseHeight = 1080;
-  // Scaling factor: 0.8 = 20% reduction (80% of original size)
-  const scalingFactor: number = 0.8;
-  // Scaled dimensions
-  const containerWidth = baseWidth * scalingFactor; // 1536
-  const containerHeight = baseHeight * scalingFactor; // 864
+  // Default dimensions (will be updated by ResizeObserver to actual container size)
+  let containerWidth = 1280;
+  let containerHeight = 720;
   let ambientSceneZoneRef: AmbientSceneZone | null = null;
   let resizeObserver: ResizeObserver | null = null;
   let resizeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -57,9 +69,9 @@
   // Track if ResizeObserver is set up to avoid duplicate setup
   let resizeObserverSetup = false;
   
-  // Initialize layout immediately with base dimensions and scaling factor
-  // The service will apply the scaling factor to all zone coordinates
-  let layout: ZoneLayout = zoneLayoutService.initializeLayout(baseWidth, baseHeight, scalingFactor);
+  // Initialize layout with default dimensions (will be updated when container is measured)
+  // All coordinates are now relative and will scale automatically with container size
+  let layout: ZoneLayout = zoneLayoutService.initializeLayout(containerWidth, containerHeight);
 
   // Expose ambient scene zone for card adding
   export function getAmbientSceneZone(): AmbientSceneZone | null {
@@ -67,26 +79,11 @@
   }
 
   onMount(() => {
-    // Layout is already initialized, just log for debugging
-    console.log('GameAreaLayout on mount:', {
-      containerWidth,
-      containerHeight,
-      zones: Array.from(layout.zones.entries()).map(([type, zone]) => ({
-        type,
-        x: zone.x,
-        y: zone.y,
-        width: zone.width,
-        height: zone.height
-      })),
-      hasYellowZone: layout.zones.has(ZoneType.YELLOW),
-      yellowZone: layout.zones.has(ZoneType.YELLOW) ? layout.zones.get(ZoneType.YELLOW) : null
-    });
-
     // Wait for next tick to ensure container is fully rendered with proper dimensions
     setTimeout(() => {
       if (!containerElement) return;
       
-      // Verify container has proper dimensions before setting up ResizeObserver
+      // Get actual rendered dimensions from CSS
       const rect = containerElement.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) {
         console.warn('GameAreaLayout: Container has invalid dimensions on mount', rect);
@@ -95,6 +92,8 @@
           if (containerElement) {
             const retryRect = containerElement.getBoundingClientRect();
             if (retryRect.width > 0 && retryRect.height > 0) {
+              // Update layout with actual container dimensions
+              updateLayout(retryRect.width, retryRect.height);
               setupResizeObserver();
             } else {
               console.error('GameAreaLayout: Container still has invalid dimensions after retry', retryRect);
@@ -103,6 +102,24 @@
         }, 100);
         return;
       }
+
+      // Update layout with actual container dimensions (from CSS)
+      updateLayout(rect.width, rect.height);
+      
+      // Log for debugging
+      console.log('GameAreaLayout on mount:', {
+        containerWidth: rect.width,
+        containerHeight: rect.height,
+        zones: Array.from(layout.zones.entries()).map(([type, zone]) => ({
+          type,
+          x: zone.x,
+          y: zone.y,
+          width: zone.width,
+          height: zone.height
+        })),
+        hasYellowZone: layout.zones.has(ZoneType.YELLOW),
+        yellowZone: layout.zones.has(ZoneType.YELLOW) ? layout.zones.get(ZoneType.YELLOW) : null
+      });
 
       setupResizeObserver();
     }, 0);
@@ -158,10 +175,11 @@
       console.warn('updateLayout: Invalid dimensions, skipping update', { newWidth, newHeight });
       return;
     }
-    // Calculate scaling factor based on new dimensions relative to base
-    const newScalingFactor = newWidth / baseWidth;
-    // Resize layout with base dimensions and new scaling factor
-    layout = zoneLayoutService.resizeLayout(layout, baseWidth, baseHeight, newScalingFactor);
+    // Update container dimensions
+    containerWidth = newWidth;
+    containerHeight = newHeight;
+    // Resize layout with new dimensions (relative coordinates automatically scale)
+    layout = zoneLayoutService.resizeLayout(layout, newWidth, newHeight);
   }
 
   function handleZoneInteraction(zoneType: ZoneType, event: MouseEvent | KeyboardEvent) {
@@ -273,10 +291,11 @@
 <style>
   .game-area-layout {
     position: relative;
-    width: 1536px;
-    height: 864px;
-    min-width: 1536px;
-    min-height: 864px;
+    /* Default size - can be overridden by CSS variables or media queries */
+    width: var(--game-area-width, 1280px);
+    height: var(--game-area-height, 720px);
+    min-width: var(--game-area-min-width, 640px);
+    min-height: var(--game-area-min-height, 360px);
     display: block;
     background-color: #1a1a2e;
     overflow: hidden;
@@ -288,45 +307,43 @@
     /* Center horizontally */
     margin-left: auto;
     margin-right: auto;
+    /* Maintain 16:9 aspect ratio */
+    aspect-ratio: 16 / 9;
   }
 
-  /* Scale down on screens smaller than 1536px wide while maintaining aspect ratio */
-  @media (max-width: 1536px) {
+  /* Scale down on smaller screens while maintaining aspect ratio */
+  @media (max-width: 1280px) {
     .game-area-layout {
       width: 100%;
       height: auto;
       min-width: 0;
       min-height: 0;
-      aspect-ratio: 16 / 9;
       max-height: 100vh;
-      /* Ensure it doesn't exceed viewport */
       max-width: 100vw;
     }
   }
 
-  /* Scale down on screens smaller than 864px tall while maintaining aspect ratio */
-  @media (max-height: 864px) {
+  /* Scale down on short screens while maintaining aspect ratio */
+  @media (max-height: 720px) {
     .game-area-layout {
       height: 100vh;
       width: auto;
       min-width: 0;
       min-height: 0;
-      aspect-ratio: 16 / 9;
       max-width: 100vw;
-      /* Ensure it doesn't exceed viewport */
       max-height: 100vh;
     }
   }
 
-  /* On larger screens (2K, 4K), keep at 1536x864 and center */
-  @media (min-width: 1537px) {
+  /* On larger screens, use default size and center */
+  @media (min-width: 1281px) and (min-height: 721px) {
     .game-area-layout {
-      width: 1536px;
-      height: 864px;
-      min-width: 1536px;
-      min-height: 864px;
-      max-width: 1536px;
-      max-height: 864px;
+      width: var(--game-area-width, 1280px);
+      height: var(--game-area-height, 720px);
+      min-width: var(--game-area-min-width, 1280px);
+      min-height: var(--game-area-min-height, 720px);
+      max-width: var(--game-area-max-width, 1280px);
+      max-height: var(--game-area-max-height, 720px);
     }
   }
 </style>

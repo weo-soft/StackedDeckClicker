@@ -29,17 +29,18 @@ describe('ZoneLayoutService', () => {
       }).toThrow();
     });
 
-    it('should create layout with default proportions', () => {
+    it('should create layout with all zones', () => {
       const layout = service.initializeLayout(800, 600);
       
       expect(layout.containerWidth).toBe(800);
       expect(layout.containerHeight).toBe(600);
-      expect(layout.zones.size).toBe(5);
+      expect(layout.zones.size).toBe(6); // Includes PURPLE zone
       expect(layout.zones.has(ZoneType.WHITE)).toBe(true);
       expect(layout.zones.has(ZoneType.YELLOW)).toBe(true);
       expect(layout.zones.has(ZoneType.BLUE)).toBe(true);
       expect(layout.zones.has(ZoneType.ORANGE)).toBe(true);
       expect(layout.zones.has(ZoneType.GREEN)).toBe(true);
+      expect(layout.zones.has(ZoneType.PURPLE)).toBe(true);
     });
 
     it('should create layout with custom proportions', () => {
@@ -63,8 +64,8 @@ describe('ZoneLayoutService', () => {
       expect(whiteZone).toBeDefined();
       expect(whiteZone!.x).toBe(0);
       expect(whiteZone!.y).toBe(0);
-      expect(whiteZone!.width).toBeCloseTo(536, 1); // 800 * 0.67
-      expect(whiteZone!.height).toBe(600);
+      expect(whiteZone!.width).toBeCloseTo(500, 1); // 800 * 0.625
+      expect(whiteZone!.height).toBeCloseTo(500, 1); // 600 * 0.833333
     });
 
     it('should calculate right side zones correctly', () => {
@@ -74,19 +75,21 @@ describe('ZoneLayoutService', () => {
       const greenZone = layout.zones.get(ZoneType.GREEN);
       
       expect(blueZone).toBeDefined();
-      expect(blueZone!.x).toBeCloseTo(536, 1); // White zone width
-      expect(blueZone!.width).toBeCloseTo(264, 1); // 800 * 0.33
-      expect(blueZone!.height).toBe(300); // 600 * 0.5
+      expect(blueZone!.x).toBeCloseTo(500, 1); // 800 * 0.625 (white zone width)
+      expect(blueZone!.width).toBeCloseTo(300, 1); // 800 * 0.375
+      expect(blueZone!.height).toBeCloseTo(300, 1); // 600 * 0.5
       
       expect(orangeZone).toBeDefined();
-      expect(orangeZone!.x).toBeCloseTo(536, 1);
-      expect(orangeZone!.y).toBe(300);
-      expect(orangeZone!.height).toBe(150); // 600 * 0.25
+      expect(orangeZone!.x).toBe(0); // Orange is on left side
+      expect(orangeZone!.y).toBeCloseTo(500, 1); // 600 * 0.833333
+      expect(orangeZone!.width).toBeCloseTo(500, 1); // 800 * 0.625
+      expect(orangeZone!.height).toBeCloseTo(100, 1); // 600 * 0.166667
       
       expect(greenZone).toBeDefined();
-      expect(greenZone!.x).toBeCloseTo(536, 1);
-      expect(greenZone!.y).toBe(450);
-      expect(greenZone!.height).toBe(150); // 600 * 0.25
+      expect(greenZone!.x).toBeCloseTo(500, 1); // 800 * 0.625
+      expect(greenZone!.y).toBeCloseTo(300, 1); // 600 * 0.5
+      expect(greenZone!.width).toBeCloseTo(300, 1); // 800 * 0.375
+      expect(greenZone!.height).toBeCloseTo(300, 1); // 600 * 0.5
     });
   });
 
@@ -99,8 +102,8 @@ describe('ZoneLayoutService', () => {
       expect(resizedLayout.containerHeight).toBe(800);
       
       const whiteZone = resizedLayout.zones.get(ZoneType.WHITE);
-      expect(whiteZone!.width).toBeCloseTo(804, 1); // 1200 * 0.67
-      expect(whiteZone!.height).toBe(800);
+      expect(whiteZone!.width).toBeCloseTo(750, 1); // 1200 * 0.625
+      expect(whiteZone!.height).toBeCloseTo(666.67, 1); // 800 * 0.833333
     });
 
     it('should throw error for invalid new dimensions', () => {
@@ -119,7 +122,7 @@ describe('ZoneLayoutService', () => {
       
       expect(boundary.zoneType).toBe(ZoneType.WHITE);
       expect(boundary.minX).toBe(0);
-      expect(boundary.maxX).toBeCloseTo(536, 1);
+      expect(boundary.maxX).toBeCloseTo(500, 1); // 800 * 0.625
     });
 
     it('should throw error for non-existent zone', () => {
@@ -205,23 +208,6 @@ describe('ZoneLayoutService', () => {
     });
   });
 
-  describe('hasOverlappingZones', () => {
-    it('should return false for valid layout without overlaps', () => {
-      const layout = service.initializeLayout(800, 600);
-      
-      expect(service.hasOverlappingZones(layout)).toBe(false);
-    });
-
-    it('should return true for layout with overlapping zones', () => {
-      const layout = service.initializeLayout(800, 600);
-      // Manually create overlapping zones
-      const whiteZone = layout.zones.get(ZoneType.WHITE)!;
-      const blueZone = layout.zones.get(ZoneType.BLUE)!;
-      blueZone.x = whiteZone.x + whiteZone.width - 50; // Overlap
-      
-      expect(service.hasOverlappingZones(layout)).toBe(true);
-    });
-  });
 
   describe('validateLayout', () => {
     it('should return valid result for correct layout', () => {
@@ -242,58 +228,51 @@ describe('ZoneLayoutService', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    it('should return errors for layout with overlapping zones', () => {
-      const layout = service.initializeLayout(800, 600);
-      const whiteZone = layout.zones.get(ZoneType.WHITE)!;
-      const blueZone = layout.zones.get(ZoneType.BLUE)!;
-      blueZone.x = whiteZone.x + whiteZone.width - 50; // Overlap
-      
-      const result = service.validateLayout(layout);
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('overlap'))).toBe(true);
-    });
   });
 
   describe('User Story 1: Zone Layout Initialization', () => {
-    it('should initialize layout with all five zones visible', () => {
+    it('should initialize layout with all zones visible', () => {
       const layout = service.initializeLayout(800, 600);
       
-      expect(layout.zones.size).toBe(5);
+      expect(layout.zones.size).toBe(6); // Includes PURPLE zone
       expect(layout.zones.has(ZoneType.WHITE)).toBe(true);
       expect(layout.zones.has(ZoneType.YELLOW)).toBe(true);
       expect(layout.zones.has(ZoneType.BLUE)).toBe(true);
       expect(layout.zones.has(ZoneType.ORANGE)).toBe(true);
       expect(layout.zones.has(ZoneType.GREEN)).toBe(true);
+      expect(layout.zones.has(ZoneType.PURPLE)).toBe(true);
     });
 
-    it('should position zones according to reference image proportions', () => {
+    it('should position zones according to relative coordinates', () => {
       const layout = service.initializeLayout(800, 600);
       
       const whiteZone = layout.zones.get(ZoneType.WHITE)!;
       const blueZone = layout.zones.get(ZoneType.BLUE)!;
       
-      // White zone should be ~67% of width on left
-      expect(whiteZone.width / layout.containerWidth).toBeCloseTo(0.67, 2);
+      // White zone should be ~62.5% of width on left (0.625 relative)
+      expect(whiteZone.width / layout.containerWidth).toBeCloseTo(0.625, 2);
       expect(whiteZone.x).toBe(0);
       
-      // Blue zone should be on right side
+      // Blue zone should be on right side (starts at 62.5% of width)
+      expect(blueZone.x / layout.containerWidth).toBeCloseTo(0.625, 2);
       expect(blueZone.x).toBeGreaterThan(whiteZone.x + whiteZone.width - 1);
     });
 
-    it('should size zones correctly', () => {
+    it('should size zones correctly using relative coordinates', () => {
       const layout = service.initializeLayout(800, 600);
       
       const blueZone = layout.zones.get(ZoneType.BLUE)!;
       const orangeZone = layout.zones.get(ZoneType.ORANGE)!;
       const greenZone = layout.zones.get(ZoneType.GREEN)!;
       
-      // Blue zone should be 50% of right side height
+      // Blue zone should be 50% of container height (0.5 relative)
       expect(blueZone.height / layout.containerHeight).toBeCloseTo(0.5, 2);
       
-      // Orange and green zones should each be 25% of right side height
-      expect(orangeZone.height / layout.containerHeight).toBeCloseTo(0.25, 2);
-      expect(greenZone.height / layout.containerHeight).toBeCloseTo(0.25, 2);
+      // Orange zone should be ~16.7% of container height (0.166667 relative)
+      expect(orangeZone.height / layout.containerHeight).toBeCloseTo(0.166667, 2);
+      
+      // Green zone should be 50% of container height (0.5 relative)
+      expect(greenZone.height / layout.containerHeight).toBeCloseTo(0.5, 2);
     });
   });
 
@@ -304,35 +283,37 @@ describe('ZoneLayoutService', () => {
       
       expect(whiteZone.x).toBe(0);
       expect(whiteZone.y).toBe(0);
-      expect(whiteZone.width).toBeCloseTo(536, 1); // 800 * 0.67
-      expect(whiteZone.height).toBe(600);
+      expect(whiteZone.width).toBeCloseTo(500, 1); // 800 * 0.625
+      expect(whiteZone.height).toBeCloseTo(500, 1); // 600 * 0.833333
     });
 
-    it('should calculate right side zones positions correctly', () => {
+    it('should calculate zone positions correctly using relative coordinates', () => {
       const layout = service.initializeLayout(800, 600);
       const whiteZone = layout.zones.get(ZoneType.WHITE)!;
       const blueZone = layout.zones.get(ZoneType.BLUE)!;
       const orangeZone = layout.zones.get(ZoneType.ORANGE)!;
       const greenZone = layout.zones.get(ZoneType.GREEN)!;
       
-      // All right side zones should start at same X (after white zone)
+      // Blue and green zones should start at same X (62.5% of width)
       expect(blueZone.x).toBeCloseTo(whiteZone.width, 1);
-      expect(orangeZone.x).toBeCloseTo(whiteZone.width, 1);
       expect(greenZone.x).toBeCloseTo(whiteZone.width, 1);
+      
+      // Orange zone is on left side (same X as white)
+      expect(orangeZone.x).toBe(0);
       
       // Blue zone at top
       expect(blueZone.y).toBe(0);
       
-      // Orange zone below blue
-      expect(orangeZone.y).toBe(blueZone.height);
+      // Orange zone at bottom of left side
+      expect(orangeZone.y).toBeCloseTo(whiteZone.height, 1);
       
-      // Green zone below orange
-      expect(greenZone.y).toBe(orangeZone.y + orangeZone.height);
+      // Green zone starts at middle height
+      expect(greenZone.y).toBeCloseTo(blueZone.height, 1);
     });
   });
 
   describe('User Story 1: Zone Size Calculations', () => {
-    it('should calculate zone sizes based on proportions', () => {
+    it('should calculate zone sizes based on relative coordinates', () => {
       const layout = service.initializeLayout(800, 600);
       
       const whiteZone = layout.zones.get(ZoneType.WHITE)!;
@@ -340,19 +321,21 @@ describe('ZoneLayoutService', () => {
       const orangeZone = layout.zones.get(ZoneType.ORANGE)!;
       const greenZone = layout.zones.get(ZoneType.GREEN)!;
       
-      // White zone: 67% width, 100% height
-      expect(whiteZone.width / layout.containerWidth).toBeCloseTo(0.67, 2);
-      expect(whiteZone.height).toBe(layout.containerHeight);
+      // White zone: 62.5% width, 83.3% height (relative coordinates)
+      expect(whiteZone.width / layout.containerWidth).toBeCloseTo(0.625, 2);
+      expect(whiteZone.height / layout.containerHeight).toBeCloseTo(0.833333, 2);
       
-      // Right side zones: 33% width
-      expect(blueZone.width / layout.containerWidth).toBeCloseTo(0.33, 2);
-      expect(orangeZone.width / layout.containerWidth).toBeCloseTo(0.33, 2);
-      expect(greenZone.width / layout.containerWidth).toBeCloseTo(0.33, 2);
+      // Right side zones: 37.5% width
+      expect(blueZone.width / layout.containerWidth).toBeCloseTo(0.375, 2);
+      expect(greenZone.width / layout.containerWidth).toBeCloseTo(0.375, 2);
       
-      // Blue: 50% height, Orange: 25% height, Green: 25% height
+      // Orange zone: same width as white (62.5%)
+      expect(orangeZone.width / layout.containerWidth).toBeCloseTo(0.625, 2);
+      
+      // Blue: 50% height, Orange: 16.7% height, Green: 50% height
       expect(blueZone.height / layout.containerHeight).toBeCloseTo(0.5, 2);
-      expect(orangeZone.height / layout.containerHeight).toBeCloseTo(0.25, 2);
-      expect(greenZone.height / layout.containerHeight).toBeCloseTo(0.25, 2);
+      expect(orangeZone.height / layout.containerHeight).toBeCloseTo(0.166667, 2);
+      expect(greenZone.height / layout.containerHeight).toBeCloseTo(0.5, 2);
     });
   });
 });

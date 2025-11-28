@@ -34,10 +34,14 @@ export interface ZoneProportions {
 }
 
 /**
- * Base zone coordinates for 1920x1080 container (unscaled).
- * All zones use absolute pixel coordinates.
+ * Relative zone coordinates as proportions of the container (0.0 to 1.0).
+ * All zones use relative coordinates that scale with the container size.
+ * 
+ * Coordinates are relative to container dimensions:
+ * - x, width: proportion of container width (0.0 = left edge, 1.0 = right edge)
+ * - y, height: proportion of container height (0.0 = top edge, 1.0 = bottom edge)
  */
-export interface BaseZoneCoordinates {
+export interface RelativeZoneCoordinates {
   /** White zone: Ambient Scene */
   whiteZone: { x: number; y: number; width: number; height: number };
   /** Yellow zone: Card Drop Area (within white zone) */
@@ -53,17 +57,35 @@ export interface BaseZoneCoordinates {
 }
 
 /**
- * Base zone coordinates for 1920x1080 container.
- * These are the absolute coordinates before scaling.
+ * Relative zone coordinates as proportions (0.0 to 1.0).
+ * These coordinates are multiplied by the actual container dimensions to get absolute positions.
+ * 
+ * Based on original 1280x720 layout, converted to proportions:
+ * - whiteZone: left side, top 83.3% (0, 0, 0.625, 0.833)
+ * - yellowZone: centered in white zone (0.416, 0.351, 0.166, 0.296)
+ * - orangeZone: left side, bottom 16.7% (0, 0.833, 0.625, 0.167)
+ * - blueZone: right side, top 50% (0.625, 0, 0.375, 0.5)
+ * - greenZone: right side, bottom 50% (0.625, 0.5, 0.375, 0.5)
+ * - purpleZone: overlay on white, top-left (0.005, 0.010, 0.182, 0.490)
  */
-export const BASE_ZONE_COORDINATES: BaseZoneCoordinates = {
-  whiteZone: { x: 0, y: 0, width: 1200, height: 900 },
-  yellowZone: { x: 800, y: 380, width: 320, height: 320 },
-  orangeZone: { x: 0, y: 900, width: 1200, height: 180 },
-  blueZone: { x: 1200, y: 0, width: 720, height: 540 },
-  greenZone: { x: 1200, y: 540, width: 720, height: 540 },
-  purpleZone: { x: 10, y: 10, width: 350, height: 530 } // Top-left overlay on white zone - sized to fit card (300x455 base + padding)
+export const RELATIVE_ZONE_COORDINATES: RelativeZoneCoordinates = {
+  whiteZone: { x: 0, y: 0, width: 0.625, height: 0.833333 },
+  yellowZone: { x: 0.41640625, y: 0.3513889, width: 0.16640625, height: 0.2958333 },
+  orangeZone: { x: 0, y: 0.833333, width: 0.625, height: 0.166667 },
+  blueZone: { x: 0.625, y: 0, width: 0.375, height: 0.5 },
+  greenZone: { x: 0.625, y: 0.5, width: 0.375, height: 0.5 },
+  purpleZone: { x: 0.00546875, y: 0.0097222, width: 0.18203125, height: 0.4902778 } // Top-left overlay on white zone
 };
+
+/**
+ * @deprecated Use RELATIVE_ZONE_COORDINATES instead. Kept for backward compatibility.
+ */
+export interface BaseZoneCoordinates extends RelativeZoneCoordinates {}
+
+/**
+ * @deprecated Use RELATIVE_ZONE_COORDINATES instead. Kept for backward compatibility.
+ */
+export const BASE_ZONE_COORDINATES = RELATIVE_ZONE_COORDINATES;
 
 /**
  * Represents the content displayed within a zone.
