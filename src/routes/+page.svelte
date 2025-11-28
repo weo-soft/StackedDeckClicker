@@ -8,10 +8,13 @@
   import TierSettings from '$lib/components/TierSettings.svelte';
   import TierManagement from '$lib/components/TierManagement.svelte';
   import DataVersionOverlay from '$lib/components/DataVersionOverlay.svelte';
+  import Scoreboard from '$lib/components/Scoreboard.svelte';
   import { audioService } from '$lib/audio/audioManager.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '$lib/utils/errors.js';
   import { createDefaultGameState } from '$lib/utils/defaultGameState.js';
   import { storageService } from '$lib/services/storageService.js';
+  import { scoreboardService } from '$lib/services/scoreboardService.js';
+  import { scoreboardStore } from '$lib/stores/scoreboardStore.js';
   import type { CardDrawResult } from '$lib/models/CardDrawResult.js';
   import type { OfflineProgressionResult } from '$lib/models/OfflineProgressionResult.js';
 
@@ -39,6 +42,9 @@
 
   onMount(async () => {
     console.log('onMount called - starting initialization');
+    
+    // Initialize scoreboard service
+    scoreboardService.initialize();
     
     // Preload audio
     try {
@@ -103,6 +109,15 @@
           if (results.length > 0) {
             lastCardDraw = results[results.length - 1];
             
+            // Track all drops in scoreboard
+            results.forEach((result) => {
+              scoreboardService.trackDrop(result);
+            });
+            // Refresh store after debounce delay to ensure UI updates
+            setTimeout(() => {
+              scoreboardStore.refresh();
+            }, 150); // Slightly longer than DEBOUNCE_DELAY (100ms) to ensure stats are updated
+            
             // Add all cards to ambient scene zone with slight delay for visual effect
             if (ambientSceneZone) {
               const { tierStore } = await import('$lib/stores/tierStore.js');
@@ -128,6 +143,13 @@
       }
       
       const result = await gameStateService.openDeck();
+      
+      // Track drop in scoreboard (always track, regardless of visibility)
+      scoreboardService.trackDrop(result);
+      // Refresh store after debounce delay to ensure UI updates
+      setTimeout(() => {
+        scoreboardStore.refresh();
+      }, 150); // Slightly longer than DEBOUNCE_DELAY (100ms) to ensure stats are updated
       
       // Check if card should be displayed based on tier
       const { tierStore } = await import('$lib/stores/tierStore.js');
@@ -261,6 +283,11 @@
         {errorMessage}
       </div>
     {/if}
+
+    <!-- Scoreboard Sidebar (Permanently Visible) -->
+    <div class="scoreboard-sidebar">
+      <Scoreboard />
+    </div>
 
     <!-- Tier Management Buttons -->
     <div class="tier-buttons">
@@ -579,6 +606,61 @@
     border-radius: 4px;
     background-color: #333;
     color: white;
+  }
+
+  .scoreboard-sidebar {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 350px;
+    max-height: calc(100vh - 200px);
+    z-index: 999;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb, #555) var(--scrollbar-track, #2a2a2a);
+  }
+
+  .scoreboard-sidebar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scoreboard-sidebar::-webkit-scrollbar-track {
+    background: var(--scrollbar-track, #2a2a2a);
+    border-radius: 4px;
+  }
+
+  .scoreboard-sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, #555);
+    border-radius: 4px;
+  }
+
+  .scoreboard-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover, #666);
+  }
+
+  @media (max-width: 1400px) {
+    .scoreboard-sidebar {
+      width: 300px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .scoreboard-sidebar {
+      width: 280px;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .scoreboard-sidebar {
+      position: relative;
+      top: auto;
+      right: auto;
+      width: 100%;
+      max-height: 400px;
+      margin: 1rem 0;
+    }
   }
 
   .tier-buttons {
