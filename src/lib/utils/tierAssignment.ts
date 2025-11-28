@@ -564,21 +564,21 @@ export function createDefaultTierConfigurations(): Map<string, TierConfiguration
       borderWidth: 2
     },
     A: { 
-      backgroundColor: '#FFFFFF', // White background (rgb(255, 255, 255))
-      textColor: '#0000FF',       // Blue text (rgb(0, 0, 255))
-      borderColor: '#0000FF',     // Blue border (rgb(0, 0, 255))
+      backgroundColor: '#0014B4', // Dark blue background (rgb(0, 20, 180)) - from Tier B
+      textColor: '#FFFFFF',       // White text (rgb(255, 255, 255)) - from Tier B
+      borderColor: '#FFFFFF',     // White border (rgb(255, 255, 255)) - from Tier B
       borderWidth: 2
     },
     B: { 
-      backgroundColor: '#0014B4', // Dark blue background (rgb(0, 20, 180))
-      textColor: '#FFFFFF',       // White text (rgb(255, 255, 255))
-      borderColor: '#FFFFFF',     // White border (rgb(255, 255, 255))
+      backgroundColor: '#00DCF0', // Cyan/Light Blue background (rgb(0, 220, 240)) - from Tier C
+      textColor: '#000000',       // Black text (rgb(0, 0, 0)) - from Tier C
+      borderColor: '#000000',     // Black border (rgb(0, 0, 0)) - from Tier C
       borderWidth: 2
     },
     C: { 
-      backgroundColor: '#00DCF0', // Cyan/Light Blue background (rgb(0, 220, 240))
-      textColor: '#000000',       // Black text (rgb(0, 0, 0))
-      borderColor: '#000000',     // Black border (rgb(0, 0, 0))
+      backgroundColor: '#278DC0', // Darker light blue background (rgb(39, 141, 192)) - from Tier D
+      textColor: '#000000',       // Black text (rgb(0, 0, 0)) - from Tier D
+      borderColor: '#000000',     // Black border (rgb(0, 0, 0)) - from Tier D
       borderWidth: 2
     },
     D: { 
