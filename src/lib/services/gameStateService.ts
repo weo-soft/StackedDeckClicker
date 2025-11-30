@@ -128,8 +128,13 @@ export class GameStateService {
       // Ensure card pool is loaded
       const cardPool = this.ensureCardPool();
       
-      // Draw card
-      const card = cardService.drawCard(cardPool, state.upgrades, () => this.prng());
+      // Draw card (pass custom rarity percentage if set)
+      const card = cardService.drawCard(
+        cardPool, 
+        state.upgrades, 
+        () => this.prng(),
+        state.customRarityPercentage
+      );
 
       // Create result
       const result: CardDrawResult = {
@@ -288,6 +293,30 @@ export class GameStateService {
     await this.updateGameState((s) => ({
       ...s,
       decks: s.decks + count
+    }));
+  }
+
+  /**
+   * Update the custom rarity percentage override.
+   * @param percentage - Rarity percentage (0-10000), or undefined to clear the override
+   * @param allowDebug - Allow setting even without upgrade purchased (for debugging)
+   */
+  async setCustomRarityPercentage(percentage: number | undefined, allowDebug: boolean = false): Promise<void> {
+    if (!allowDebug) {
+      const rarityUpgrade = this.getGameState().upgrades.upgrades.get('improvedRarity');
+      if (!rarityUpgrade || rarityUpgrade.level === 0) {
+        throw new Error('Improved Rarity upgrade must be purchased first');
+      }
+    }
+
+    // Validate percentage range (extended to 10,000% for higher scaling)
+    if (percentage !== undefined && (percentage < 0 || percentage > 10000)) {
+      throw new Error('Rarity percentage must be between 0 and 10,000');
+    }
+
+    await this.updateGameState((s) => ({
+      ...s,
+      customRarityPercentage: percentage
     }));
   }
 

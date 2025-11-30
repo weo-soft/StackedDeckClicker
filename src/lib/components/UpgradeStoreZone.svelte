@@ -106,7 +106,8 @@
 
   .upgrade-shop-section {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
   }
 </style>

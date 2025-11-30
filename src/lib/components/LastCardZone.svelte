@@ -232,7 +232,7 @@
       <!-- Card information (weight, value) -->
       <div class="card-info">
         <p class="card-info-line">
-          Weight: {cardDisplayData.card.weight} | <span class="value-part">Value: {cardDisplayData.card.value.toFixed(2)} Chaos</span>
+          Weight: {cardDisplayData.fullCardData?.dropWeight ?? cardDisplayData.card.weight} | <span class="value-part">Value: {cardDisplayData.card.value.toFixed(2)} Chaos</span>
         </p>
       </div>
     </div>

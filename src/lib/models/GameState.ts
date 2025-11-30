@@ -16,5 +16,7 @@ export interface GameState {
   customizations: Map<string, boolean>;
   /** Optional: Track count of each card collected (key = card name) */
   cardCollection?: Map<string, number>;
+  /** Optional: Custom rarity percentage override (0-100, overrides level-based calculation) */
+  customRarityPercentage?: number;
 }
 

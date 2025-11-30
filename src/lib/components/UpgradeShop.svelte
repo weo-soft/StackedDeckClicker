@@ -168,6 +168,59 @@
   function getUpgradeTypeName(type: UpgradeType): string {
     return type.replace(/([A-Z])/g, ' $1').trim();
   }
+
+  // Rarity slider state
+  let raritySliderValue: number = 0;
+  let isDraggingRaritySlider: boolean = false;
+  let debugModeEnabled: boolean = false;
+
+  // Get current rarity percentage (custom or calculated from level)
+  // Explicitly track gameState and upgradeMap for reactivity
+  $: rarityUpgrade = gameState && upgradeMap ? upgradeMap.get('improvedRarity') : null;
+  $: currentRarityPercentage = gameState?.customRarityPercentage ?? (rarityUpgrade ? rarityUpgrade.level * 10 : 0);
+  $: showRaritySlider = (rarityUpgrade !== null && rarityUpgrade !== undefined && rarityUpgrade.level > 0) || debugModeEnabled;
+
+  // Update slider value when percentage changes (only if not dragging)
+  $: if (!isDraggingRaritySlider && currentRarityPercentage !== undefined) {
+    raritySliderValue = currentRarityPercentage;
+  }
+
+  async function handleRaritySliderChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const newValue = parseFloat(target.value);
+    isDraggingRaritySlider = true;
+    raritySliderValue = newValue;
+    
+    try {
+      // In debug mode, allow setting even without upgrade purchased
+      if (debugModeEnabled) {
+        await gameStateService.setCustomRarityPercentage(newValue, true);
+      } else {
+        await gameStateService.setCustomRarityPercentage(newValue);
+      }
+    } catch (error) {
+      console.error('Failed to update rarity percentage:', error);
+      errorMessage = error instanceof Error ? error.message : 'Failed to update rarity percentage';
+    } finally {
+      // Small delay to allow state update
+      setTimeout(() => {
+        isDraggingRaritySlider = false;
+      }, 100);
+    }
+  }
+  
+  function toggleDebugMode() {
+    debugModeEnabled = !debugModeEnabled;
+    if (debugModeEnabled) {
+      // Initialize slider value when enabling debug mode
+      raritySliderValue = currentRarityPercentage;
+    }
+  }
+
+  function handleRaritySliderInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    raritySliderValue = parseFloat(target.value);
+  }
 </script>
 
 <div class="upgrade-shop">
@@ -217,6 +270,46 @@
     {/each}
   </div>
 
+  {#if showRaritySlider}
+    <div class="rarity-slider-container">
+      <div class="rarity-slider-header">
+        <label for="rarity-slider" class="rarity-slider-label">
+          <span class="rarity-label-text">✨ Increased Rarity:</span>
+          <span class="rarity-percentage">{raritySliderValue >= 1000 ? raritySliderValue.toFixed(0) : raritySliderValue.toFixed(1)}%</span>
+        </label>
+        {#if debugModeEnabled}
+          <span class="debug-badge" title="Debug mode enabled - rarity slider works without upgrade">DEBUG</span>
+        {/if}
+      </div>
+      <input
+        id="rarity-slider"
+        type="range"
+        min="0"
+        max="10000"
+        step="1"
+        value={raritySliderValue}
+        on:input={handleRaritySliderInput}
+        on:change={handleRaritySliderChange}
+        class="rarity-slider"
+        aria-label="Adjust increased rarity percentage"
+      />
+      <div class="rarity-slider-hint">
+        Adjust the rarity percentage to fine-tune drop rates. Higher values favor high-value cards.
+      </div>
+    </div>
+  {/if}
+
+  <!-- Debug mode toggle button (always visible for debugging) -->
+  <button
+    class="debug-toggle-button"
+    on:click={toggleDebugMode}
+    type="button"
+    aria-label={debugModeEnabled ? "Disable debug mode" : "Enable debug mode for rarity slider"}
+    title={debugModeEnabled ? "Disable debug mode - slider will only show when upgrade is purchased" : "Enable debug mode - show rarity slider even without upgrade"}
+  >
+    {debugModeEnabled ? '🔴 Debug: ON' : '⚪ Debug: OFF'}
+  </button>
+
   {#if hoveredCell !== null}
     {@const upgrade = getUpgradeForCell(hoveredCell)}
     {#if upgrade !== null}
@@ -252,7 +345,8 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .upgrade-shop h2 {
@@ -266,7 +360,7 @@
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(5, 1fr);
     gap: 0.15rem;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
   }
@@ -434,5 +528,125 @@
     color: white;
     border-radius: 4px;
     font-size: 0.85rem;
+  }
+
+  .rarity-slider-container {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background-color: #1a1a2e;
+    border: 1px solid #4a90e2;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .rarity-slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .rarity-label-text {
+    font-weight: bold;
+  }
+
+  .rarity-percentage {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .rarity-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #2a2a2a;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0.5rem 0;
+  }
+
+  .rarity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a90e2;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+  }
+
+  .rarity-slider::-webkit-slider-thumb:hover {
+    background: #5aa0f2;
+    transform: scale(1.1);
+  }
+
+  .rarity-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a90e2;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+  }
+
+  .rarity-slider::-moz-range-thumb:hover {
+    background: #5aa0f2;
+    transform: scale(1.1);
+  }
+
+  .rarity-slider-hint {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  .rarity-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .debug-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .debug-toggle-button {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: #2a2a2a;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .debug-toggle-button:hover {
+    background-color: #3a3a3a;
+    border-color: #888;
+    color: rgba(255, 255, 255, 1);
+  }
+
+  .debug-toggle-button:active {
+    background-color: #1a1a1a;
   }
 </style>
