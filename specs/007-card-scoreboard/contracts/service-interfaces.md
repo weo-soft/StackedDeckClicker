@@ -289,3 +289,4 @@ function handleIncludeHiddenToggle(include: boolean) {
 - Test tier visibility changes affecting scoreboard
 
 
+

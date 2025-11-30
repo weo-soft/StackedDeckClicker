@@ -268,3 +268,4 @@ interface SessionDropHistory {
 - **Lazy aggregation**: aggregatedStats updated incrementally, not recalculated from scratch each time
 
 
+
