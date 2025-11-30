@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GameState } from '../models/GameState.js';
+  import { resolvePath } from '../utils/paths.js';
 
   export let width: number;
   export let height: number;
@@ -8,6 +9,9 @@
   export let onAddDecks: (() => void) | undefined = undefined;
   export let onAddChaos: (() => void) | undefined = undefined;
   export let style: string = '';
+
+  // Deck icon image URL
+  const deckIconUrl = resolvePath('/images/Deck.webp');
 
   let isProcessing = false;
   let lastDeckOpenTime = 0;
@@ -20,7 +24,7 @@
   const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
 
   // Positions in grid (0-indexed)
-  const OPEN_DECK_START = 0; // Top-left, spans 2x2
+  const OPEN_DECK_START = 0; // Top-left, single cell
   const ADD_DECKS_POS = 7; // Top-right, single cell (row 0, col 7)
   const ADD_CHAOS_POS = 15; // Below Add Decks, single cell (row 1, col 7)
 
@@ -87,10 +91,8 @@
   }
 
   function isOpenDeckCell(cellIndex: number): boolean {
-    // Open Deck button spans cells 0, 1, 8, 9 (2x2 in top-left)
-    const row = getCellRow(cellIndex);
-    const col = getCellCol(cellIndex);
-    return row < 2 && col < 2;
+    // Open Deck button is a single cell at position 0 (top-left)
+    return cellIndex === OPEN_DECK_START;
   }
 
   function isAddDecksCell(cellIndex: number): boolean {
@@ -138,7 +140,7 @@
             <div
               class="grid-cell open-deck-button"
               class:disabled={isDisabled}
-              style="grid-column: span 2; grid-row: span 2;"
+              style="background-color: #2a2a2a !important; border: 1px solid #444 !important;"
               on:click={handleDeckOpen}
               on:keydown={(e) => handleKeyDown(e, 'open')}
               role="button"
@@ -147,13 +149,8 @@
               aria-disabled={isDisabled}
             >
               <div class="open-deck-content">
-                <h3>Open Deck</h3>
-                <p class="deck-count">Decks: {gameState?.decks || 0}</p>
-                {#if !gameState || gameState.decks <= 0}
-                  <p class="no-decks" role="alert">No decks</p>
-                {:else if isProcessing}
-                  <p class="processing" role="status">Opening...</p>
-                {/if}
+                <img src={deckIconUrl} alt="Deck" class="deck-icon" />
+                <span class="deck-count-badge">{gameState?.decks || 0}</span>
               </div>
             </div>
           {:else if isAddDecks}
@@ -258,76 +255,92 @@
     border-color: #333;
   }
 
+  .inventory-grid .grid-cell.open-deck-button {
+    background-color: #2a2a2a !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .inventory-grid .grid-cell.open-deck-button:hover {
+    background-color: #2a2a2a !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+  }
+
+  .inventory-grid .grid-cell.open-deck-button:active {
+    background-color: #2a2a2a !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+  }
+
+  .inventory-grid .grid-cell.open-deck-button:focus {
+    background-color: #2a2a2a !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    outline: none !important;
+  }
+
   .open-deck-button {
     cursor: pointer;
-    background-color: #2a3a2a;
-    border-color: #4caf50;
-    border-width: 2px;
+    background-color: #2a2a2a !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    box-shadow: none !important;
   }
 
   .open-deck-button:hover:not(.disabled) {
-    background-color: #3a4a3a;
-    border-color: #5cbf60;
-    transform: scale(1.02);
+    transform: scale(1.05);
     z-index: 10;
   }
 
   .open-deck-button:active:not(.disabled) {
-    transform: scale(0.98);
+    transform: scale(0.95);
   }
 
   .open-deck-button:focus {
-    outline: 2px solid #4caf50;
-    outline-offset: -2px;
+    outline: none;
     z-index: 10;
   }
 
   .open-deck-button.disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    border-color: #666;
   }
 
   .open-deck-button.disabled:hover {
-    background-color: #2a3a2a;
     transform: none;
   }
 
   .open-deck-content {
-    text-align: center;
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
+    padding: 0;
+    position: relative;
+    background: transparent;
   }
 
-  .open-deck-content h3 {
-    margin: 0 0 0.25rem 0;
-    font-size: 0.9rem;
-    color: #4caf50;
-    font-weight: bold;
+  .deck-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  .deck-count {
-    margin: 0.125rem 0;
-    font-size: 0.75rem;
+  .deck-count-badge {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    background-color: transparent;
     color: #fff;
-  }
-
-  .no-decks {
-    margin: 0.125rem 0 0 0;
-    font-size: 0.65rem;
-    color: #888;
-  }
-
-  .processing {
-    margin: 0.125rem 0 0 0;
-    font-size: 0.65rem;
-    color: #4caf50;
+    font-size: 0.75rem;
     font-weight: bold;
+    padding: 0;
+    border: none;
+    z-index: 1;
   }
 
   .add-decks-button {
