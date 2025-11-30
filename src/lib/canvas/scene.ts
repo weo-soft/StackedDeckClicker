@@ -721,6 +721,10 @@ export class Scene {
    * Beams pulse smoothly with a sine wave animation for a dynamic effect.
    * Beams are rendered between card objects and labels in the z-order.
    * 
+   * Volumetric effect: Each beam consists of two layers:
+   * - Outer beam: Wider, softer edges, fades to transparent at edges
+   * - Core beam: Narrower, brighter, more intense, creates the "volume" effect
+   * 
    * Performance: Single pass loop, gradient objects created per beam (reused during beam lifetime).
    * Optimized for 20+ simultaneous beams while maintaining 60fps.
    * 
@@ -728,8 +732,15 @@ export class Scene {
    */
   private drawLightBeams(ctx: CanvasRenderingContext2D): void {
     const beamMaxHeight = this.canvasHeight * 0.65; // 65% of canvas height (extended)
-    const beamBaseWidth = 12; // Width at base
-    const beamTopWidth = 4; // Width at top
+    
+    // Outer beam dimensions (wider, softer)
+    const outerBeamBaseWidth = 16; // Width at base
+    const outerBeamTopWidth = 6; // Width at top
+    
+    // Core beam dimensions (narrower, brighter)
+    const coreBeamBaseWidth = 8; // Width at base
+    const coreBeamTopWidth = 2; // Width at top
+    
     const pulseSpeed = 0.003; // Pulsing speed (radians per millisecond)
     const pulseMin = 0.6; // Minimum opacity during pulse (60%)
     const pulseMax = 1.0; // Maximum opacity during pulse (100%)
@@ -764,18 +775,11 @@ export class Scene {
       // Beam height is constant (no fade reduction)
       const currentBeamHeight = beamMaxHeight;
 
-      // Create vertical gradient
-      const gradient = ctx.createLinearGradient(
-        card.x, card.y,                    // Start (card position)
-        card.x, card.y - currentBeamHeight  // End (top of beam)
-      );
-
-      // Gradient color stops: full color at bottom, transparent at top
-      // Convert hex color to rgba for proper alpha blending
+      // Parse hex color to RGB
+      let r: number, g: number, b: number;
       try {
         const hex = card.beamColor.replace('#', '');
         // Handle both 6-digit (#RRGGBB) and 3-digit (#RGB) hex formats
-        let r: number, g: number, b: number;
         if (hex.length === 6) {
           r = parseInt(hex.substring(0, 2), 16);
           g = parseInt(hex.substring(2, 4), 16);
@@ -790,40 +794,116 @@ export class Scene {
           console.warn(`Invalid beam color format: ${card.beamColor}, using white fallback`);
           r = g = b = 255;
         }
-        
-        // Use rgba format for better alpha blending
-        // Apply pulsing to all gradient stops for consistent effect
-        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${beamOpacity})`);
-        gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${beamOpacity * 0.6})`);
-        gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`); // Fully transparent at top
       } catch (error) {
         // Fallback to white if color parsing fails
         console.error(`Error parsing beam color: ${card.beamColor}`, error);
-        gradient.addColorStop(0, `rgba(255, 255, 255, ${beamOpacity})`);
-        gradient.addColorStop(0.5, `rgba(255, 255, 255, ${beamOpacity * 0.6})`);
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        r = g = b = 255;
       }
 
-      // Draw beam as tapered rectangle
+      // === LAYER 0: Dome/Light-Scattering Effect at Base ===
+      // Creates a radial glow at the base of the beam, simulating light scattering on a surface
       ctx.save();
-      // Don't apply globalAlpha here since gradient already has alpha in rgba colors
-      // This prevents double alpha application
-      ctx.fillStyle = gradient;
+      const domeRadiusX = 40; // Horizontal radius (wider for dome shape) - increased for visibility
+      const domeRadiusY = 18; // Vertical radius (narrower for dome shape) - increased for visibility
+      const domeCenterX = card.x;
+      const domeCenterY = card.y;
+      
+      // Dome opacity pulses with the beam - increased for better visibility
+      const domeBaseOpacity = beamOpacity * 0.8; // Higher opacity for visibility
+      // Brighten dome color significantly for visibility
+      const domeR = Math.min(255, r + 40);
+      const domeG = Math.min(255, g + 40);
+      const domeB = Math.min(255, b + 40);
+      
+      // Draw elliptical dome using scale transform
+      ctx.translate(domeCenterX, domeCenterY);
+      ctx.scale(1, domeRadiusY / domeRadiusX); // Scale to create ellipse
+      
+      // Create radial gradient AFTER transform so it works correctly with the ellipse
+      const domeGradient = ctx.createRadialGradient(
+        0, 0, 0,                    // Inner circle (center, in transformed space)
+        0, 0, domeRadiusX            // Outer circle (edge, in transformed space)
+      );
+      
+      // Radial gradient: bright at center, fades to transparent at edges
+      domeGradient.addColorStop(0, `rgba(${domeR}, ${domeG}, ${domeB}, ${domeBaseOpacity})`);
+      domeGradient.addColorStop(0.3, `rgba(${domeR}, ${domeG}, ${domeB}, ${domeBaseOpacity * 0.7})`);
+      domeGradient.addColorStop(0.6, `rgba(${domeR}, ${domeG}, ${domeB}, ${domeBaseOpacity * 0.4})`);
+      domeGradient.addColorStop(1, `rgba(${domeR}, ${domeG}, ${domeB}, 0)`); // Fully transparent at edge
+      
+      ctx.fillStyle = domeGradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, domeRadiusX, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
 
-      // Draw beam (tapered from base to top)
-      const startX = card.x - beamBaseWidth / 2;
-      const endX = card.x - beamTopWidth / 2;
+      // === LAYER 1: Outer Beam (wider, softer edges) ===
+      ctx.save();
+      const outerGradient = ctx.createLinearGradient(
+        card.x, card.y,                    // Start (card position)
+        card.x, card.y - currentBeamHeight  // End (top of beam)
+      );
+
+      // Outer beam: fades more gradually to edges, lower base opacity
+      const outerBaseOpacity = beamOpacity * 0.4; // Softer outer layer
+      outerGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${outerBaseOpacity})`);
+      outerGradient.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, ${outerBaseOpacity * 0.7})`);
+      outerGradient.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, ${outerBaseOpacity * 0.4})`);
+      outerGradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`); // Fully transparent at top
+
+      ctx.fillStyle = outerGradient;
+
+      // Draw outer beam (tapered from base to top)
+      const outerStartX = card.x - outerBeamBaseWidth / 2;
+      const outerEndX = card.x - outerBeamTopWidth / 2;
       const startY = card.y;
       const endY = card.y - currentBeamHeight;
 
       ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.lineTo(startX + beamBaseWidth, startY);
-      ctx.lineTo(endX + beamTopWidth, endY);
-      ctx.lineTo(endX, endY);
+      ctx.moveTo(outerStartX, startY);
+      ctx.lineTo(outerStartX + outerBeamBaseWidth, startY);
+      ctx.lineTo(outerEndX + outerBeamTopWidth, endY);
+      ctx.lineTo(outerEndX, endY);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
 
+      // === LAYER 2: Core Beam (narrower, brighter, more intense) ===
+      ctx.save();
+      const coreGradient = ctx.createLinearGradient(
+        card.x, card.y,                    // Start (card position)
+        card.x, card.y - currentBeamHeight  // End (top of beam)
+      );
+
+      // Core beam: brighter, more intense, fades to transparent at edges
+      // Use higher opacity and brighter color for the core
+      const coreBaseOpacity = beamOpacity * 1.0; // Full opacity for maximum brightness
+      // Brighten the core color significantly and blend towards white for lighter appearance
+      // Blend 60% towards white (255, 255, 255) for a much lighter core
+      const blendFactor = 0.6;
+      const coreR = Math.min(255, Math.floor(r + (255 - r) * blendFactor));
+      const coreG = Math.min(255, Math.floor(g + (255 - g) * blendFactor));
+      const coreB = Math.min(255, Math.floor(b + (255 - b) * blendFactor));
+      
+      coreGradient.addColorStop(0, `rgba(${coreR}, ${coreG}, ${coreB}, ${coreBaseOpacity})`);
+      coreGradient.addColorStop(0.4, `rgba(${coreR}, ${coreG}, ${coreB}, ${coreBaseOpacity * 0.8})`);
+      coreGradient.addColorStop(0.7, `rgba(${coreR}, ${coreG}, ${coreB}, ${coreBaseOpacity * 0.5})`);
+      coreGradient.addColorStop(1, `rgba(${coreR}, ${coreG}, ${coreB}, 0)`); // Fully transparent at top
+
+      ctx.fillStyle = coreGradient;
+
+      // Draw core beam (tapered from base to top, narrower than outer)
+      const coreStartX = card.x - coreBeamBaseWidth / 2;
+      const coreEndX = card.x - coreBeamTopWidth / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(coreStartX, startY);
+      ctx.lineTo(coreStartX + coreBeamBaseWidth, startY);
+      ctx.lineTo(coreEndX + coreBeamTopWidth, endY);
+      ctx.lineTo(coreEndX, endY);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
     }
   }

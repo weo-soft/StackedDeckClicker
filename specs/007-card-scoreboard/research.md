@@ -173,3 +173,4 @@
 - Can be called explicitly if needed (e.g., from settings)
 - SessionDropHistory.sessionStartTimestamp tracks session start time
 
+

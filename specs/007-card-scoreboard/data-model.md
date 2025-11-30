@@ -267,3 +267,4 @@ interface SessionDropHistory {
 - **Debouncing**: Rapid card drops debounced to prevent excessive updates
 - **Lazy aggregation**: aggregatedStats updated incrementally, not recalculated from scratch each time
 
+

@@ -15,3 +15,4 @@ export interface SessionDropHistory {
   lastUpdateTimestamp: number;
 }
 
+

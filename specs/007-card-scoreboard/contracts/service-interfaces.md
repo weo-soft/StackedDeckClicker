@@ -288,3 +288,4 @@ function handleIncludeHiddenToggle(include: boolean) {
 - Test real-time updates when cards are dropped
 - Test tier visibility changes affecting scoreboard
 
+
