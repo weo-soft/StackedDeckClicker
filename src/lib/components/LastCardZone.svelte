@@ -27,7 +27,7 @@
   // Calculate display config
   $: displayConfig = calculateCardDisplayConfig(width, height);
 
-  // Preload cards.json on mount to avoid blocking later
+  // Preload cards.json and static images on mount to avoid blocking later
   onMount(() => {
     // Preload cards data in background
     setTimeout(() => {
@@ -35,6 +35,14 @@
         // Silently fail - will retry when needed
       });
     }, 100);
+
+    // Preload frame and separator images
+    const preloadImage = (url: string) => {
+      const img = new Image();
+      img.src = url;
+    };
+    preloadImage(frameUrl);
+    preloadImage(separatorUrl);
   });
 
   // Track the current card to avoid re-processing
@@ -97,10 +105,14 @@
       const updatedDisplayData = convertToCardDisplayData(cardDraw, fullCardData || undefined);
       cardDisplayData = updatedDisplayData;
 
-      // Resolve image URL
+      // Resolve image URL and preload it
       if (updatedDisplayData.artFilename) {
         const url = cardImageService.resolveCardImageUrl(updatedDisplayData.artFilename);
         if (url) {
+          // Preload the image to improve loading performance
+          cardImageService.preloadCardImage(updatedDisplayData.artFilename).catch(() => {
+            // Silently fail - image will still load when displayed
+          });
           imageState = { url, loading: true, error: false };
         } else {
           imageState = { url: null, loading: false, error: true };

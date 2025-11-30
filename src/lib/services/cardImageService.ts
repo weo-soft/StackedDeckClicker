@@ -6,6 +6,8 @@ import type { CardImageState } from '../models/CardDisplayData.js';
  */
 export class CardImageService {
   private imageCache = new Map<string, string | null>();
+  private preloadedImages = new Set<string>(); // Track which images have been preloaded
+  private preloadPromises = new Map<string, Promise<void>>(); // Track ongoing preloads
 
   /**
    * Resolve card artwork image URL from artFilename.
@@ -33,6 +35,56 @@ export class CardImageService {
   }
 
   /**
+   * Preload a single card image into browser cache.
+   * Uses the browser's Image API to actually load and cache the image.
+   * 
+   * @param artFilename - Artwork filename to preload
+   * @returns Promise resolving when image is loaded or failed
+   */
+  async preloadCardImage(artFilename: string | null): Promise<void> {
+    if (!artFilename) return;
+    
+    // Skip if already preloaded or currently preloading
+    if (this.preloadedImages.has(artFilename)) {
+      return;
+    }
+    
+    // If already preloading, return the existing promise
+    if (this.preloadPromises.has(artFilename)) {
+      return this.preloadPromises.get(artFilename)!;
+    }
+
+    const url = this.resolveCardImageUrl(artFilename);
+    if (!url) {
+      return;
+    }
+
+    // Create and track preload promise
+    const preloadPromise = new Promise<void>((resolve) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        this.preloadedImages.add(artFilename);
+        this.preloadPromises.delete(artFilename);
+        resolve();
+      };
+      
+      img.onerror = () => {
+        // Still mark as attempted to avoid retrying immediately
+        this.preloadedImages.add(artFilename);
+        this.preloadPromises.delete(artFilename);
+        resolve(); // Resolve anyway to not block
+      };
+      
+      // Start loading
+      img.src = url;
+    });
+
+    this.preloadPromises.set(artFilename, preloadPromise);
+    return preloadPromise;
+  }
+
+  /**
    * Load card image and return loading state.
    * Handles image loading, error states, and caching.
    * 
@@ -51,8 +103,9 @@ export class CardImageService {
       };
     }
 
-    // Note: We don't preload images here anymore - the browser handles it natively
-    // This method is kept for API compatibility but is no longer used
+    // Preload the image if not already preloaded
+    await this.preloadCardImage(artFilename);
+
     return Promise.resolve({
       url,
       loading: false,
@@ -68,7 +121,7 @@ export class CardImageService {
    * @returns Promise resolving when all images are loaded or failed
    */
   async preloadCardImages(artFilenames: string[]): Promise<void> {
-    const loadPromises = artFilenames.map(filename => this.loadCardImage(filename));
+    const loadPromises = artFilenames.map(filename => this.preloadCardImage(filename));
     await Promise.allSettled(loadPromises);
   }
 
