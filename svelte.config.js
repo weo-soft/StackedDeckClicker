@@ -5,9 +5,9 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
   preprocess: vitePreprocess(),
   kit: {
-    // Set base path for GitHub Pages deployment
+    // Set base path for deployment
     // If BASE_PATH environment variable is set, use it; otherwise default to ''
-    // For GitHub Pages, this should be set to '/repository-name/' (with trailing slash)
+    // For custom domains, leave empty (default). For GitHub Pages subdirectory, set to '/repository-name'
     paths: {
       base: process.env.BASE_PATH || ''
     },

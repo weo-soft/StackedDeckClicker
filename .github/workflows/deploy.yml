@@ -32,14 +32,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Set base path for GitHub Pages
-        run: |
-          # Extract repository name from GITHUB_REPOSITORY (format: owner/repo)
-          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          # Set BASE_PATH environment variable for the build
-          # Note: SvelteKit requires base path to start with '/' but NOT end with '/'
-          echo "BASE_PATH=/$REPO_NAME" >> $GITHUB_ENV
-
       - name: Build
         run: npm run build
 
