@@ -32,7 +32,7 @@ export class UpgradeService {
         return this.calculateAutoOpeningRate(upgrade.level);
       case 'improvedRarity':
         return upgrade.level; // Level directly represents rarity bonus
-      case 'luck':
+      case 'luckyDrop':
         return upgrade.level; // Level represents number of extra draws
       case 'multidraw':
         // Level 1 = 10, Level 2 = 50, Level 3 = 100
@@ -107,7 +107,7 @@ export class UpgradeService {
         return `${effect.toFixed(1)} decks/second`;
       case 'improvedRarity':
         return `+${effect * 10}% rare card chance`;
-      case 'luck':
+      case 'luckyDrop':
         return `Best of ${effect + 1} draws`;
       case 'multidraw':
         return `Open ${effect} decks at once`;

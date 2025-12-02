@@ -17,6 +17,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-17
 - IndexedDB via StorageService (existing), in-memory session state (007-card-scoreboard)
 - TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Vitest 1.0.0 (008-tier-settings-redesign)
 - LocalForage (IndexedDB) via tierStorageService (008-tier-settings-redesign)
+- TypeScript 5.3.0, JavaScript (ES2020+) + SvelteKit 2.0.0, Svelte 4.2.0, Vite 5.0.0, localforage 1.10.0 (IndexedDB), seedrandom 3.0.5 (PRNG) (010-lucky-drop)
+- IndexedDB via localforage for game state persistence (upgrade levels, score, decks) (010-lucky-drop)
 
 - TypeScript/JavaScript (ES2020+), SvelteKit (latest stable) + SvelteKit, HTML5 Canvas API, localforge (IndexedDB wrapper), Howler.js (audio), seedrandom (PRNG), Vite (build tool) (001-stacked-deck-clicker)
 
@@ -37,9 +39,9 @@ npm test; npm run lint
 TypeScript/JavaScript (ES2020+), SvelteKit (latest stable): Follow standard conventions
 
 ## Recent Changes
+- 010-lucky-drop: Added TypeScript 5.3.0, JavaScript (ES2020+) + SvelteKit 2.0.0, Svelte 4.2.0, Vite 5.0.0, localforage 1.10.0 (IndexedDB), seedrandom 3.0.5 (PRNG)
 - 008-tier-settings-redesign: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, Vitest 1.0.0
 - 007-card-scoreboard: Added TypeScript 5.3.0, Svelte 4.2.0 + SvelteKit 2.0.0, Vite 5.0.0, LocalForage 1.10.0 (for IndexedDB storage)
-- 006-card-details-click: Added TypeScript 5.3, Svelte 4.2 + SvelteKit 2.0, Vite 5.0, HTML5 Canvas API
 
 
 <!-- MANUAL ADDITIONS START -->

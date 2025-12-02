@@ -61,6 +61,37 @@ describe('UpgradeService', () => {
       const effect = upgradeService.calculateUpgradeEffect(upgrade);
       expect(effect).toBe(0);
     });
+
+    it('should calculate luckyDrop upgrade effect', () => {
+      upgrade.type = 'luckyDrop';
+      upgrade.level = 1;
+      const effect = upgradeService.calculateUpgradeEffect(upgrade);
+      expect(effect).toBe(1); // Level represents number of extra draws
+    });
+
+    it('should calculate luckyDrop upgrade effect for level 3', () => {
+      upgrade.type = 'luckyDrop';
+      upgrade.level = 3;
+      const effect = upgradeService.calculateUpgradeEffect(upgrade);
+      expect(effect).toBe(3);
+    });
+  });
+
+  describe('getEffectDescription', () => {
+    it('should return correct description for luckyDrop upgrade', () => {
+      const description = upgradeService.getEffectDescription('luckyDrop', 1);
+      expect(description).toBe('Best of 2 draws'); // effect + 1
+    });
+
+    it('should return correct description for luckyDrop upgrade level 2', () => {
+      const description = upgradeService.getEffectDescription('luckyDrop', 2);
+      expect(description).toBe('Best of 3 draws'); // effect + 1
+    });
+
+    it('should return correct description for luckyDrop upgrade level 0', () => {
+      const description = upgradeService.getEffectDescription('luckyDrop', 0);
+      expect(description).toBe('Best of 1 draws'); // effect + 1
+    });
   });
 
   describe('canAffordUpgrade', () => {

@@ -321,6 +321,80 @@ export class GameStateService {
   }
 
   /**
+   * Set lucky drop upgrade level directly (for debugging purposes).
+   * @param level - Lucky drop level to set (0 or higher)
+   */
+  async setLuckyDropLevel(level: number): Promise<void> {
+    if (level < 0) {
+      throw new Error('Lucky drop level must be 0 or higher');
+    }
+
+    await this.updateGameState((s) => {
+      const newUpgrades = new Map(s.upgrades.upgrades);
+      const luckyDropUpgrade = newUpgrades.get('luckyDrop');
+      
+      if (luckyDropUpgrade) {
+        newUpgrades.set('luckyDrop', {
+          ...luckyDropUpgrade,
+          level
+        });
+      } else {
+        // Create new upgrade if it doesn't exist
+        newUpgrades.set('luckyDrop', {
+          type: 'luckyDrop',
+          level,
+          baseCost: 250,
+          costMultiplier: 1.75
+        });
+      }
+
+      return {
+        ...s,
+        upgrades: {
+          upgrades: newUpgrades
+        }
+      };
+    });
+  }
+
+  /**
+   * Migrate 'luck' upgrade to 'luckyDrop' upgrade.
+   * Idempotent: safe to run multiple times.
+   * 
+   * @param gameState - Game state to migrate
+   * @returns Updated game state with 'luckyDrop' instead of 'luck'
+   */
+  private migrateLuckToLuckyDrop(gameState: GameState): GameState {
+    // Check for 'luck' upgrade using type assertion since it's no longer in UpgradeType enum
+    const upgradesMap = gameState.upgrades.upgrades as Map<string, any>;
+    const luckUpgrade = upgradesMap.get('luck');
+    
+    if (luckUpgrade) {
+      // Create luckyDrop upgrade with same level and costs
+      const luckyDropUpgrade = {
+        type: 'luckyDrop' as UpgradeType,
+        level: luckUpgrade.level,
+        baseCost: luckUpgrade.baseCost,
+        costMultiplier: luckUpgrade.costMultiplier
+      };
+      
+      // Add luckyDrop and remove luck
+      const newUpgrades = new Map(gameState.upgrades.upgrades);
+      newUpgrades.set('luckyDrop', luckyDropUpgrade);
+      newUpgrades.delete('luck' as any);
+      
+      return {
+        ...gameState,
+        upgrades: {
+          upgrades: newUpgrades
+        }
+      };
+    }
+    
+    return gameState;
+  }
+
+  /**
    * Initialize game state (load from storage or create default).
    */
   async initialize(): Promise<void> {
@@ -380,7 +454,18 @@ export class GameStateService {
           
           if (savedState) {
             console.log('Loaded saved state from storage');
-            this.currentState = savedState;
+            // Migrate 'luck' upgrade to 'luckyDrop' if needed
+            const migratedState = this.migrateLuckToLuckyDrop(savedState);
+            if (migratedState !== savedState) {
+              console.log('Migrated luck upgrade to luckyDrop');
+              // Save migrated state
+              try {
+                await storageService.saveGameState(migratedState);
+              } catch (saveError) {
+                console.warn('Failed to save migrated state:', saveError);
+              }
+            }
+            this.currentState = migratedState;
             gameState.set(this.currentState);
 
             // Apply customizations to canvas

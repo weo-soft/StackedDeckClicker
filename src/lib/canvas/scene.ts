@@ -750,20 +750,7 @@ export class Scene {
         continue; // Skip cards without beams
       }
       
-      // Debug logging in development
-      if (import.meta.env.DEV && this.cards.indexOf(card) === 0) {
-        // Log first card's beam state occasionally
-        if (Math.random() < 0.01) { // 1% chance per frame
-          console.log('[Beam] Rendering beam for card:', {
-            name: card.card.name,
-            enabled: card.beamEnabled,
-            color: card.beamColor,
-            age: card.beamAge,
-            x: card.x,
-            y: card.y
-          });
-        }
-      }
+      // Debug logging removed for performance
 
       // Calculate pulsing opacity using sine wave
       // Use beamAge to create smooth, continuous pulsing animation
