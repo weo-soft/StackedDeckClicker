@@ -10,7 +10,7 @@ import type { UpgradeType } from '../models/types.js';
 export class CardService {
   /**
    * Draw a single card from the card pool using weighted random selection.
-   * Applies upgrade effects (rarity improvements, luck bonuses) before drawing.
+   * Applies upgrade effects (rarity improvements, lucky drop bonuses) before drawing.
    * 
    * @param cardPool - The card pool to draw from
    * @param upgrades - Collection of upgrades
@@ -37,10 +37,10 @@ export class CardService {
       }
     }
 
-    // Apply luck upgrade (best-of-N selection)
-    const luckUpgrade = upgrades.upgrades.get('luck');
-    if (luckUpgrade && luckUpgrade.level > 0) {
-      return this.applyLuckUpgrade(modifiedPool, luckUpgrade.level, prng);
+    // Apply lucky drop upgrade (best-of-N selection)
+    const luckyDropUpgrade = upgrades.upgrades.get('luckyDrop');
+    if (luckyDropUpgrade && luckyDropUpgrade.level > 0) {
+      return this.applyLuckyDropUpgrade(modifiedPool, luckyDropUpgrade.level, prng);
     }
 
     // Standard weighted selection
@@ -122,15 +122,15 @@ export class CardService {
   }
 
   /**
-   * Apply luck upgrade (best-of-N selection).
+   * Apply lucky drop upgrade (best-of-N selection).
    */
-  applyLuckUpgrade(
+  applyLuckyDropUpgrade(
     cardPool: CardPool,
-    luckLevel: number,
+    luckyDropLevel: number,
     prng: () => number
   ): DivinationCard {
-    // Number of draws = 1 + luckLevel (level 1 = 2 draws, level 2 = 3 draws, etc.)
-    const numDraws = 1 + luckLevel;
+    // Number of draws = 1 + luckyDropLevel (level 1 = 2 draws, level 2 = 3 draws, etc.)
+    const numDraws = 1 + luckyDropLevel;
     const draws: DivinationCard[] = [];
 
     for (let i = 0; i < numDraws; i++) {
@@ -138,7 +138,15 @@ export class CardService {
     }
 
     // Return the card with the highest value (best card)
-    return draws.reduce((best, current) => (current.value > best.value ? current : best));
+    const selectedCard = draws.reduce((best, current) => (current.value > best.value ? current : best));
+
+    // Minimal debug logging: show selected card and roll count
+    if (import.meta.env.DEV && luckyDropLevel > 0) {
+      const rolledNames = draws.map(c => c.name).join(', ');
+      console.log(`🎲 Lucky Drop L${luckyDropLevel}: Selected ${selectedCard.name} (value: ${selectedCard.value}) from ${numDraws} rolls [${rolledNames}]`);
+    }
+
+    return selectedCard;
   }
 }
 

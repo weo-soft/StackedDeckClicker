@@ -5,7 +5,6 @@ import { tierService } from '../services/tierService.js';
 import type { ColorScheme } from '../models/Tier.js';
 
 // Cache to track if we've logged initialization status
-let tierInitLogged = false;
 
 export interface CardAnimation {
   card: DivinationCard;
@@ -82,23 +81,12 @@ export function createCardAnimation(
     if (tier?.config?.lightBeam) {
       beamEnabled = tier.config.lightBeam.enabled;
       beamColor = tier.config.lightBeam.color;
-      if (import.meta.env.DEV && beamEnabled) {
-        console.log(`[Beam] Card "${card.name}" - beam enabled: ${beamEnabled}, color: ${beamColor}, tier: ${tier.id}`);
-      }
-    } else if (tier) {
-      // Tier exists but no lightBeam config - this shouldn't happen with new defaults, but log it
-      if (import.meta.env.DEV) {
-        console.warn(`[Beam] Card "${card.name}" in tier "${tier.id}" has no lightBeam config`);
-      }
     }
     // If tier exists but has no lightBeam property, use defaults (enabled: false, color: null)
     // This handles backward compatibility with existing tier configurations
   } catch (error) {
     // Tier service not available or tier not found, use defaults
     // This handles cases where tier service is not initialized or tier is deleted
-    if (import.meta.env.DEV) {
-      console.warn('[Beam] Tier service not available for beam config, using defaults:', error);
-    }
   }
 
   // Initial label position (will be adjusted to avoid overlaps)
@@ -348,25 +336,11 @@ function getLabelStyle(card: DivinationCard): {
   try {
     // Check if tier service has state (is initialized)
     const tierState = tierService.getState();
-    if (!tierState) {
-      if (!tierInitLogged) {
-        console.warn('[Tier] Tier service not initialized yet. Labels will use fallback colors until tier system loads.');
-        tierInitLogged = true;
-      }
-    } else {
+    if (tierState) {
       const tier = tierService.getTierForCard(card.name);
       if (tier && tier.config && tier.config.colorScheme) {
         const colorScheme = tier.config.colorScheme;
-        // Only log first few cards to avoid console spam
-        if (!tierInitLogged) {
-          console.log(`[Tier] Tier system active! Card "${card.name}" -> Tier "${tier.id}"`, {
-            bg: colorScheme.backgroundColor,
-            text: colorScheme.textColor,
-            border: colorScheme.borderColor,
-            borderWidth: colorScheme.borderWidth
-          });
-          tierInitLogged = true;
-        }
+        // Tier logging removed for performance
         return {
           backgroundColor: colorScheme.backgroundColor,
           textColor: colorScheme.textColor,
@@ -374,19 +348,10 @@ function getLabelStyle(card: DivinationCard): {
           borderWidth: colorScheme.borderWidth || 2,
           opacity: 0.95
         };
-      } else {
-        if (!tierInitLogged) {
-          console.warn(`[Tier] Card "${card.name}" has no tier assignment. Tier:`, tier);
-          tierInitLogged = true;
-        }
       }
     }
   } catch (error) {
     // Tier system not available, fall through to default
-    if (!tierInitLogged) {
-      console.warn(`[Tier] Lookup failed, using default label style:`, error);
-      tierInitLogged = true;
-    }
   }
 
   // Fallback to value-based style (original behavior)

@@ -63,7 +63,7 @@
   const UPGRADE_ICONS: Record<UpgradeType, string> = {
     autoOpening: '⚡',
     improvedRarity: '✨',
-    luck: '🍀',
+    luckyDrop: '🍀',
     multidraw: '🎯',
     deckProduction: '📦',
     sceneCustomization: '🎨'
@@ -73,7 +73,7 @@
   const UPGRADE_POSITIONS: Record<UpgradeType, number> = {
     autoOpening: 0,
     improvedRarity: 1,
-    luck: 2,
+    luckyDrop: 2,
     multidraw: 3,
     deckProduction: 4,
     sceneCustomization: 5
@@ -174,11 +174,25 @@
   let isDraggingRaritySlider: boolean = false;
   let debugModeEnabled: boolean = false;
 
+  // Lucky drop slider state
+  let luckyDropSliderValue: number = 0;
+  let isDraggingLuckyDropSlider: boolean = false;
+
   // Get current rarity percentage (custom or calculated from level)
   // Explicitly track gameState and upgradeMap for reactivity
   $: rarityUpgrade = gameState && upgradeMap ? upgradeMap.get('improvedRarity') : null;
   $: currentRarityPercentage = gameState?.customRarityPercentage ?? (rarityUpgrade ? rarityUpgrade.level * 10 : 0);
   $: showRaritySlider = (rarityUpgrade !== null && rarityUpgrade !== undefined && rarityUpgrade.level > 0) || debugModeEnabled;
+
+  // Get current lucky drop level
+  $: luckyDropUpgrade = gameState && upgradeMap ? upgradeMap.get('luckyDrop') : null;
+  $: currentLuckyDropLevel = luckyDropUpgrade?.level ?? 0;
+  $: showLuckyDropSlider = debugModeEnabled || import.meta.env.DEV;
+
+  // Update slider value when level changes (only if not dragging)
+  $: if (!isDraggingLuckyDropSlider && currentLuckyDropLevel !== undefined) {
+    luckyDropSliderValue = currentLuckyDropLevel;
+  }
 
   // Update slider value when percentage changes (only if not dragging)
   $: if (!isDraggingRaritySlider && currentRarityPercentage !== undefined) {
@@ -220,6 +234,29 @@
   function handleRaritySliderInput(event: Event) {
     const target = event.target as HTMLInputElement;
     raritySliderValue = parseFloat(target.value);
+  }
+
+  async function handleLuckyDropSliderChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const newValue = parseInt(target.value, 10);
+    isDraggingLuckyDropSlider = true;
+    luckyDropSliderValue = newValue;
+    
+    try {
+      await gameStateService.setLuckyDropLevel(newValue);
+    } catch (error) {
+      console.error('Failed to update lucky drop level:', error);
+      errorMessage = error instanceof Error ? error.message : 'Failed to update lucky drop level';
+    } finally {
+      setTimeout(() => {
+        isDraggingLuckyDropSlider = false;
+      }, 100);
+    }
+  }
+
+  function handleLuckyDropSliderInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    luckyDropSliderValue = parseInt(target.value, 10);
   }
 </script>
 
@@ -295,6 +332,33 @@
       />
       <div class="rarity-slider-hint">
         Adjust the rarity percentage to fine-tune drop rates. Higher values favor high-value cards.
+      </div>
+    </div>
+  {/if}
+
+  {#if showLuckyDropSlider}
+    <div class="rarity-slider-container">
+      <div class="rarity-slider-header">
+        <label for="luckydrop-slider" class="rarity-slider-label">
+          <span class="rarity-label-text">🍀 Lucky Drop Level:</span>
+          <span class="rarity-percentage">Level {luckyDropSliderValue} ({luckyDropSliderValue + 1} rolls)</span>
+        </label>
+        <span class="debug-badge" title="Debug mode - adjust lucky drop level for testing">DEBUG</span>
+      </div>
+      <input
+        id="luckydrop-slider"
+        type="range"
+        min="0"
+        max="10"
+        step="1"
+        value={luckyDropSliderValue}
+        on:input={handleLuckyDropSliderInput}
+        on:change={handleLuckyDropSliderChange}
+        class="rarity-slider"
+        aria-label="Adjust lucky drop level (debug only)"
+      />
+      <div class="rarity-slider-hint">
+        Debug: Adjust lucky drop level. Level N = (N+1) rolls, best card selected. Check console for roll details.
       </div>
     </div>
   {/if}

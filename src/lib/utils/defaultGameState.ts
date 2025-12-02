@@ -15,7 +15,7 @@ export function createDefaultGameState(): GameState {
   const upgradeTypes: UpgradeType[] = [
     'autoOpening',
     'improvedRarity',
-    'luck',
+    'luckyDrop',
     'multidraw',
     'deckProduction',
     'sceneCustomization'
@@ -44,7 +44,7 @@ function getBaseCost(type: UpgradeType): number {
   const costs: Record<UpgradeType, number> = {
     autoOpening: 100,
     improvedRarity: 500,
-    luck: 250,
+    luckyDrop: 250,
     multidraw: 1000,
     deckProduction: 200,
     sceneCustomization: 50
@@ -56,7 +56,7 @@ function getCostMultiplier(type: UpgradeType): number {
   const multipliers: Record<UpgradeType, number> = {
     autoOpening: 1.5,
     improvedRarity: 2.0,
-    luck: 1.75,
+    luckyDrop: 1.75,
     multidraw: 2.5,
     deckProduction: 1.6,
     sceneCustomization: 1.3
