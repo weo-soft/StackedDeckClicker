@@ -15,8 +15,6 @@
   export let gameState: GameState;
   export let onDeckOpen: (() => void) | undefined = undefined;
   export let onUpgradePurchase: ((upgradeType: UpgradeType) => void) | undefined = undefined;
-  export let onAddDecks: (() => void) | undefined = undefined;
-  export let onAddChaos: (() => void) | undefined = undefined;
   export let lastCardDraw: CardDrawResult | null = null;
 
   // State for clicked card
@@ -262,8 +260,6 @@
           height={greenZone.height}
           {gameState}
           onDeckOpen={onDeckOpen}
-          onAddDecks={onAddDecks}
-          onAddChaos={onAddChaos}
           style="position: absolute; left: {greenZone.x}px; top: {greenZone.y}px; width: {greenZone.width}px; height: {greenZone.height}px; z-index: 10;"
           role="region"
           aria-label="Inventory zone for deck opening"

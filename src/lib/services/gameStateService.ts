@@ -26,6 +26,7 @@ export class GameStateService {
   private lastOfflineProgression: OfflineProgressionResult | null = null;
   private saveDebounceTimer: number | null = null;
   private readonly SAVE_DEBOUNCE_MS = 500;
+  private infiniteDecksEnabled: boolean = false;
 
   /**
    * Get current game state.
@@ -121,7 +122,8 @@ export class GameStateService {
     return performanceMonitor.trackAsyncInteraction(async () => {
       const state = this.getGameState();
 
-      if (state.decks <= 0) {
+      // Check deck count only if infinite decks is disabled
+      if (!this.infiniteDecksEnabled && state.decks <= 0) {
         throw new InsufficientResourcesError(ERROR_MESSAGES.NO_DECKS, 'NO_DECKS');
       }
 
@@ -148,7 +150,8 @@ export class GameStateService {
         const newState = {
         ...s,
         score: s.score + result.scoreGained,
-        decks: s.decks - 1,
+        // Only decrement decks if infinite decks is disabled
+        decks: this.infiniteDecksEnabled ? s.decks : s.decks - 1,
         cardCollection: (() => {
           const collection = s.cardCollection || new Map();
           const currentCount = collection.get(card.name) || 0;
@@ -170,7 +173,8 @@ export class GameStateService {
   async openMultipleDecks(count: number): Promise<CardDrawResult[]> {
     const state = this.getGameState();
 
-    if (state.decks < count) {
+    // Check deck count only if infinite decks is disabled
+    if (!this.infiniteDecksEnabled && state.decks < count) {
       throw new InsufficientResourcesError(
         `Not enough decks. Need ${count}, have ${state.decks}`,
         'INSUFFICIENT_DECKS'
@@ -321,6 +325,26 @@ export class GameStateService {
   }
 
   /**
+   * Enable or disable infinite decks mode (debug feature).
+   * When enabled, drawing cards doesn't consume decks.
+   * @param enabled - Whether infinite decks should be enabled
+   */
+  setInfiniteDecks(enabled: boolean): void {
+    this.infiniteDecksEnabled = enabled;
+    // Persist to localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('infiniteDecksEnabled', enabled.toString());
+    }
+  }
+
+  /**
+   * Get whether infinite decks mode is enabled.
+   */
+  isInfiniteDecksEnabled(): boolean {
+    return this.infiniteDecksEnabled;
+  }
+
+  /**
    * Set lucky drop upgrade level directly (for debugging purposes).
    * @param level - Lucky drop level to set (0 or higher)
    */
@@ -399,6 +423,11 @@ export class GameStateService {
    */
   async initialize(): Promise<void> {
     performanceMonitor.startLoadTracking();
+    
+    // Initialize infinite decks from localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      this.infiniteDecksEnabled = localStorage.getItem('infiniteDecksEnabled') === 'true';
+    }
     
     // Set default state immediately so UI can render
     this.currentState = createDefaultGameState();
