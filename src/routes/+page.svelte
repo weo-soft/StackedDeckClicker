@@ -8,6 +8,7 @@
   import TierSettings from '$lib/components/TierSettings.svelte';
   import TierManagement from '$lib/components/TierManagement.svelte';
   import DataVersionOverlay from '$lib/components/DataVersionOverlay.svelte';
+  import DebugMenu from '$lib/components/DebugMenu.svelte';
   import Scoreboard from '$lib/components/Scoreboard.svelte';
   import { audioService } from '$lib/audio/audioManager.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '$lib/utils/errors.js';
@@ -191,25 +192,6 @@
     }
   }
 
-  async function handleAddDecks() {
-    try {
-      errorMessage = null;
-      await gameStateService.addDecks(10);
-    } catch (error) {
-      errorMessage = error instanceof Error ? error.message : 'Failed to add decks';
-      console.error('Add decks error:', error);
-    }
-  }
-
-  async function handleAddChaos() {
-    try {
-      errorMessage = null;
-      await gameStateService.addChaos(10);
-    } catch (error) {
-      errorMessage = error instanceof Error ? error.message : 'Failed to add chaos';
-      console.error('Add chaos error:', error);
-    }
-  }
 
   function handleResetClick() {
     showResetConfirmation = true;
@@ -261,8 +243,6 @@
       gameState={currentState}
       {lastCardDraw}
       onDeckOpen={handleOpenDeck}
-      onAddDecks={handleAddDecks}
-      onAddChaos={handleAddChaos}
       onUpgradePurchase={async (upgradeType) => {
         try {
           await gameStateService.purchaseUpgrade(upgradeType);
@@ -494,6 +474,9 @@
 
   <!-- Data Version Overlay -->
   <DataVersionOverlay bind:isOpen={showDataVersion} />
+
+  <!-- Debug Menu -->
+  <DebugMenu bind:gameState={currentState} />
 </main>
 
 <style>

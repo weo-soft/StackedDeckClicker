@@ -1,13 +1,13 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import type { GameState } from '../models/GameState.js';
   import { resolvePath } from '../utils/paths.js';
+  import { gameStateService } from '../services/gameStateService.js';
 
   export let width: number;
   export let height: number;
   export let gameState: GameState;
   export let onDeckOpen: (() => void) | undefined = undefined;
-  export let onAddDecks: (() => void) | undefined = undefined;
-  export let onAddChaos: (() => void) | undefined = undefined;
   export let style: string = '';
 
   // Deck icon image URL
@@ -25,8 +25,40 @@
 
   // Positions in grid (0-indexed)
   const OPEN_DECK_START = 0; // Top-left, single cell
-  const ADD_DECKS_POS = 7; // Top-right, single cell (row 0, col 7)
-  const ADD_CHAOS_POS = 15; // Below Add Decks, single cell (row 1, col 7)
+
+  // Check if infinite decks is enabled
+  let infiniteDecksEnabled = false;
+  
+  // Update infinite decks state
+  function updateInfiniteDecksState() {
+    if (typeof window !== 'undefined') {
+      infiniteDecksEnabled = localStorage.getItem('infiniteDecksEnabled') === 'true';
+    }
+  }
+  
+  // Check on mount and listen for changes
+  onMount(() => {
+    updateInfiniteDecksState();
+    
+    // Listen for custom event from debug menu
+    const handleInfiniteDecksChanged = (event: CustomEvent) => {
+      infiniteDecksEnabled = event.detail.enabled;
+    };
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+      
+      // Also poll as fallback (in case event doesn't fire)
+      const storageCheckInterval = window.setInterval(() => {
+        updateInfiniteDecksState();
+      }, 200);
+      
+      return () => {
+        window.removeEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+        window.clearInterval(storageCheckInterval);
+      };
+    }
+  });
 
   function handleDeckOpen(event: MouseEvent | KeyboardEvent) {
     // Prevent rapid clicking/race conditions
@@ -35,7 +67,8 @@
       return;
     }
     
-    if (!gameState || gameState.decks <= 0) {
+    // Check deck count only if infinite decks is disabled
+    if (!infiniteDecksEnabled && (!gameState || gameState.decks <= 0)) {
       return;
     }
     
@@ -57,27 +90,11 @@
     }
   }
 
-  function handleAddDecks() {
-    if (onAddDecks) {
-      onAddDecks();
-    }
-  }
-
-  function handleAddChaos() {
-    if (onAddChaos) {
-      onAddChaos();
-    }
-  }
-
-  function handleKeyDown(event: KeyboardEvent, action: 'open' | 'addDecks' | 'addChaos') {
+  function handleKeyDown(event: KeyboardEvent, action: 'open') {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (action === 'open') {
         handleDeckOpen(event);
-      } else if (action === 'addDecks') {
-        handleAddDecks();
-      } else if (action === 'addChaos') {
-        handleAddChaos();
       }
     }
   }
@@ -95,24 +112,10 @@
     return cellIndex === OPEN_DECK_START;
   }
 
-  function isAddDecksCell(cellIndex: number): boolean {
-    return cellIndex === ADD_DECKS_POS;
-  }
-
-  function isAddChaosCell(cellIndex: number): boolean {
-    return cellIndex === ADD_CHAOS_POS;
-  }
-
   function shouldRenderCell(cellIndex: number): boolean {
     // Only render if it's the start of a multi-cell element or a single-cell element
     if (isOpenDeckCell(cellIndex)) {
       return cellIndex === OPEN_DECK_START; // Only render at start position
-    }
-    if (isAddDecksCell(cellIndex)) {
-      return true; // Always render
-    }
-    if (isAddChaosCell(cellIndex)) {
-      return true; // Always render
     }
     // For empty cells, check if they're not part of the Open Deck button
     return !isOpenDeckCell(cellIndex);
@@ -129,9 +132,7 @@
     <div class="inventory-grid">
       {#each Array(TOTAL_CELLS) as _, cellIndex}
         {@const isOpenDeck = isOpenDeckCell(cellIndex)}
-        {@const isAddDecks = isAddDecksCell(cellIndex)}
-        {@const isAddChaos = isAddChaosCell(cellIndex)}
-        {@const isDisabled = (isOpenDeck && (!gameState || gameState.decks <= 0 || isProcessing))}
+        {@const isDisabled = (isOpenDeck && (!infiniteDecksEnabled && (!gameState || gameState.decks <= 0) || isProcessing))}
         {@const shouldRender = shouldRenderCell(cellIndex)}
         
         {#if shouldRender}
@@ -150,32 +151,8 @@
             >
               <div class="open-deck-content">
                 <img src={deckIconUrl} alt="Deck" class="deck-icon" />
-                <span class="deck-count-badge">{gameState?.decks || 0}</span>
+                <span class="deck-count-badge">{infiniteDecksEnabled ? '∞' : (gameState?.decks || 0)}</span>
               </div>
-            </div>
-          {:else if isAddDecks}
-            <!-- Add 10 Decks Button (1x1, top-right) -->
-            <div
-              class="grid-cell add-decks-button"
-              on:click={handleAddDecks}
-              on:keydown={(e) => handleKeyDown(e, 'addDecks')}
-              role="button"
-              tabindex="0"
-              aria-label="Add 10 Decks (Debug Only)"
-            >
-              <span class="add-decks-label">Add 10 Decks (Debug Only)</span>
-            </div>
-          {:else if isAddChaos}
-            <!-- Add 10 Chaos Button (1x1, below Add Decks) -->
-            <div
-              class="grid-cell add-chaos-button"
-              on:click={handleAddChaos}
-              on:keydown={(e) => handleKeyDown(e, 'addChaos')}
-              role="button"
-              tabindex="0"
-              aria-label="Add 10 Chaos (Debug Only)"
-            >
-              <span class="add-chaos-label">Add 10 Chaos (Debug Only)</span>
             </div>
           {:else}
             <!-- Empty cell -->

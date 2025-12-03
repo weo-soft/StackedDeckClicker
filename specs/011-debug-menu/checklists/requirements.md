@@ -1,8 +1,8 @@
-# Specification Quality Checklist: Card Drop Scoreboard
+# Specification Quality Checklist: Debug Menu
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2025-01-27
-**Feature**: [spec.md](../spec.md)
+**Feature**: [spec.md](./spec.md)
 
 ## Content Quality
 
@@ -31,12 +31,7 @@
 
 ## Notes
 
-- All items pass validation
+- All checklist items pass validation
 - Specification is ready for `/speckit.clarify` or `/speckit.plan`
-- No clarifications needed - all requirements are clear and testable
-
-
-
-
 
 
