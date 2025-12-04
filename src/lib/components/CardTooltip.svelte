@@ -7,86 +7,40 @@
   import { cardDataService } from '../services/cardDataService.js';
   import { calculateCardDisplayConfig, formatRewardText, formatFlavourText } from '../utils/cardRendering.js';
   import { resolvePath } from '../utils/paths.js';
+  import type { DivinationCard } from '../models/Card.js';
 
-  import { createEventDispatcher } from 'svelte';
+  export let cardName: string;
+  export let cardValue: number;
+  export let x: number = 0;
+  export let y: number = 0;
+  export let scoreboardRight: number = 0;
 
-  export let width: number;
-  export let height: number;
-  export let lastCardDraw: CardDrawResult | null = null;
-  /** Clicked card takes precedence over lastCardDraw when provided */
-  export let clickedCard: CardDrawResult | null = null;
-  export let style: string = '';
-
-  const dispatch = createEventDispatcher();
+  // Tooltip dimensions (smaller than LastCardZone)
+  const tooltipWidth = 280;
+  const tooltipHeight = 400;
 
   let cardDisplayData: CardDisplayData | null = null;
   let imageState: CardImageState = { url: null, loading: false, error: false };
   let displayConfig: CardDisplayConfig;
   let currentLoadAbort: AbortController | null = null;
 
-  // Frame and separator URLs (preload these)
+  // Frame and separator URLs
   const frameUrl = resolvePath('/cards/Divination_card_frame.png');
   const separatorUrl = resolvePath('/cards/Divination_card_separator.png');
 
   // Calculate display config
-  $: displayConfig = calculateCardDisplayConfig(width, height);
-
-  // Preload cards.json and static images on mount to avoid blocking later
-  onMount(() => {
-    // Preload cards data in background
-    setTimeout(() => {
-      cardDataService.loadCardsData().catch(() => {
-        // Silently fail - will retry when needed
-      });
-    }, 100);
-
-    // Preload frame and separator images
-    const preloadImage = (url: string) => {
-      const img = new Image();
-      img.src = url;
-    };
-    preloadImage(frameUrl);
-    preloadImage(separatorUrl);
-  });
+  $: displayConfig = calculateCardDisplayConfig(tooltipWidth, tooltipHeight);
 
   // Track the current card to avoid re-processing
-  let currentCardId: string | null = null;
-  
-  // Track if the card display should be hidden
-  let isHidden: boolean = false;
+  let currentCardName: string | null = null;
 
-  // Determine which card to display (clickedCard takes precedence)
-  $: displayCard = clickedCard || lastCardDraw;
-
-  // Handle card draw changes - reactive statement
-  $: if (displayCard) {
-    // Validate card data
-    if (!displayCard.card || !displayCard.card.name) {
-      console.warn('Invalid card data in LastCardZone:', displayCard);
-      cardDisplayData = null;
-      imageState = { url: null, loading: false, error: true, errorMessage: 'Invalid card data' };
-      currentCardId = null;
-    } else {
-      const cardId = `${displayCard.card.name}-${displayCard.timestamp}`;
-      // Only process if it's a new card
-      if (cardId !== currentCardId) {
-        currentCardId = cardId;
-        // Reset hidden state when a new card arrives
-        isHidden = false;
-        loadCardData(displayCard);
-      }
-    }
-  } else {
-    currentCardId = null;
-    cardDisplayData = null;
-    imageState = { url: null, loading: false, error: false };
-    if (currentLoadAbort) {
-      currentLoadAbort.abort();
-      currentLoadAbort = null;
-    }
+  // Load card data when cardName changes
+  $: if (cardName && cardName !== currentCardName) {
+    currentCardName = cardName;
+    loadCardData(cardName, cardValue);
   }
 
-  async function loadCardData(cardDraw: CardDrawResult) {
+  async function loadCardData(name: string, value: number) {
     // Cancel previous load
     if (currentLoadAbort) {
       currentLoadAbort.abort();
@@ -94,19 +48,30 @@
     currentLoadAbort = new AbortController();
     const abortSignal = currentLoadAbort.signal;
     
-    // Immediately show basic card info (synchronous, fast)
-    const basicDisplayData = convertToCardDisplayData(cardDraw);
-    cardDisplayData = basicDisplayData;
-    imageState = { url: null, loading: true, error: false };
-    
-    // Defer async work slightly to avoid blocking
-    await new Promise(resolve => setTimeout(resolve, 10));
-    
-    if (abortSignal.aborted) return;
-    
     try {
-      // Load full card data (should be cached after preload)
-      const fullCardData = await cardDataService.loadFullCardData(cardDraw.card.name);
+      // Create a minimal DivinationCard from the scoreboard entry
+      // We'll use a default qualityTier and weight since we don't have them
+      const card: DivinationCard = {
+        name,
+        value,
+        weight: 1, // Default weight
+        qualityTier: 'common' // Default tier
+      };
+
+      // Create a CardDrawResult
+      const cardDraw: CardDrawResult = {
+        card,
+        timestamp: Date.now(),
+        scoreGained: value
+      };
+
+      // Immediately show basic card info
+      const basicDisplayData = convertToCardDisplayData(cardDraw);
+      cardDisplayData = basicDisplayData;
+      imageState = { url: null, loading: true, error: false };
+      
+      // Load full card data
+      const fullCardData = await cardDataService.loadFullCardData(name);
       
       if (abortSignal.aborted) return;
       
@@ -114,14 +79,10 @@
       const updatedDisplayData = convertToCardDisplayData(cardDraw, fullCardData || undefined);
       cardDisplayData = updatedDisplayData;
 
-      // Resolve image URL and preload it
+      // Resolve image URL
       if (updatedDisplayData.artFilename) {
         const url = cardImageService.resolveCardImageUrl(updatedDisplayData.artFilename);
         if (url) {
-          // Preload the image to improve loading performance
-          cardImageService.preloadCardImage(updatedDisplayData.artFilename).catch(() => {
-            // Silently fail - image will still load when displayed
-          });
           imageState = { url, loading: true, error: false };
         } else {
           imageState = { url: null, loading: false, error: true };
@@ -131,7 +92,7 @@
       }
     } catch (error) {
       if (!abortSignal.aborted) {
-        console.error('Failed to load card data:', error);
+        console.error('Failed to load card data for tooltip:', error);
         imageState = { url: null, loading: false, error: true, errorMessage: String(error) };
       }
     } finally {
@@ -142,40 +103,68 @@
   }
 
   // Dynamic font sizes based on scale
-  $: titleFontSize = `${16 * displayConfig.scaleFactor}px`;
-  $: rewardFontSize = `${14 * displayConfig.scaleFactor}px`;
-  $: flavourFontSize = `${12 * displayConfig.scaleFactor}px`;
-  $: stackFontSize = `${12 * displayConfig.scaleFactor}px`;
-  $: letterSpacing = `${0.5 * displayConfig.scaleFactor}px`;
+  $: titleFontSize = `${14 * displayConfig.scaleFactor}px`;
+  $: rewardFontSize = `${12 * displayConfig.scaleFactor}px`;
+  $: flavourFontSize = `${10 * displayConfig.scaleFactor}px`;
+  $: stackFontSize = `${10 * displayConfig.scaleFactor}px`;
+  $: letterSpacing = `${0.4 * displayConfig.scaleFactor}px`;
 
   // Container style
-  $: containerStyle = `width: ${displayConfig.baseWidth * displayConfig.scaleFactor}px; height: ${displayConfig.baseHeight * displayConfig.scaleFactor}px; margin: 0 auto;`;
+  $: containerStyle = `width: ${displayConfig.baseWidth * displayConfig.scaleFactor}px; height: ${displayConfig.baseHeight * displayConfig.scaleFactor}px;`;
 
-  // Handle close button click
-  function handleClose(): void {
-    isHidden = true;
-    dispatch('close');
+  // Tooltip position style - position to the left of scoreboard, vertically centered on row
+  // Transform: translate(-100%, -50%) means tooltip is to the left and vertically centered
+  // x is where the RIGHT edge should be, y is the vertical center
+  let tooltipStyle = '';
+  let tooltipTransform = 'translate(-100%, -50%)';
+  $: {
+    if (typeof window === 'undefined') {
+      tooltipStyle = `left: ${x}px; top: ${y}px; transform: ${tooltipTransform};`;
+    } else {
+      const tooltipWidth = 280;
+      const tooltipHeight = 400;
+      const padding = 10;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Use the provided coordinates (already calculated correctly in Scoreboard)
+      let left = x;
+      let top = y;
+      
+      // Calculate actual tooltip bounds accounting for transform: translate(-100%, -50%)
+      // With this transform, left is where the RIGHT edge will be after transform
+      const tooltipRight = left;
+      const tooltipLeft = left - tooltipWidth;
+      const tooltipTop = top - tooltipHeight / 2;
+      const tooltipBottom = top + tooltipHeight / 2;
+      
+      // Only adjust if tooltip would go off screen
+      // Check if tooltip goes off left edge
+      if (tooltipLeft < padding) {
+        // Position to the right of scoreboard instead
+        left = scoreboardRight + padding;
+        tooltipTransform = 'translate(0, -50%)';
+      } else {
+        tooltipTransform = 'translate(-100%, -50%)';
+      }
+      
+      // Adjust vertical position only if necessary
+      if (tooltipTop < padding) {
+        // Tooltip top goes off screen, adjust upward
+        top = tooltipHeight / 2 + padding;
+      } else if (tooltipBottom > viewportHeight - padding) {
+        // Tooltip bottom goes off screen, adjust downward
+        top = viewportHeight - tooltipHeight / 2 - padding;
+      }
+      
+      tooltipStyle = `left: ${left}px; top: ${top}px; transform: ${tooltipTransform};`;
+    }
   }
 </script>
 
-<div
-  class="last-card-zone"
-  style={style || `width: ${width}px; height: ${height}px;`}
-  role="region"
-  aria-label="Last card drawn display"
->
-  {#if cardDisplayData && !isHidden}
+{#if cardDisplayData}
+  <div class="card-tooltip" style={tooltipStyle}>
     <div class="card-display" style={containerStyle}>
-      <!-- Close button -->
-      <button
-        class="close-button"
-        on:click={handleClose}
-        aria-label="Close card display"
-        type="button"
-      >
-        ×
-      </button>
-
       <!-- Frame overlay -->
       <img 
         class="card-frame" 
@@ -201,11 +190,9 @@
           alt={cardDisplayData.card.name}
           class:card-art-error={imageState.error}
           on:load={() => {
-            // Update state when image loads successfully
             imageState = { ...imageState, loading: false, error: false };
           }}
           on:error={() => {
-            // Update state when image fails to load
             imageState = { url: imageState.url, loading: false, error: true, errorMessage: 'Image failed to load' };
           }}
         />
@@ -261,77 +248,19 @@
         </p>
       </div>
     </div>
-  {:else}
-    <div class="card-display empty">
-    </div>
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style>
-  .last-card-zone {
-    position: relative;
-    overflow: visible;
-    background-color: transparent;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-    box-sizing: border-box;
-    backdrop-filter: none;
-    min-height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .card-tooltip {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
   }
 
   .card-display {
     position: relative;
     overflow: hidden;
-  }
-
-  .card-display.empty {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .close-button {
-    position: absolute;
-    top: 2%;
-    right: 2%;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #ffffff;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    font-size: 1.5rem;
-    font-weight: bold;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  .close-button:hover {
-    background-color: rgba(220, 20, 60, 0.9);
-    border-color: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
-  }
-
-  .close-button:active {
-    transform: scale(0.95);
-  }
-
-  .close-button:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.8);
-    outline-offset: 2px;
   }
 
   .card-frame {
@@ -374,7 +303,7 @@
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.3);
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     z-index: 1;
   }
 
@@ -473,7 +402,7 @@
     flex-direction: column;
     gap: 0.125rem;
     z-index: 4;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .card-info-line {
@@ -596,3 +525,4 @@
     font-size: calc(31 / 32 * 1em) !important;
   }
 </style>
+

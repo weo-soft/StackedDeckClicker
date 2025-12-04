@@ -31,6 +31,11 @@
     clickedCard = event.detail;
   }
 
+  // Handle close button click from LastCardZone
+  function handleCardClose(): void {
+    clickedCard = null;
+  }
+
   // Track the timestamp of lastCardDraw to detect when it changes
   let lastCardDrawTimestamp: number | null = null;
 
@@ -276,6 +281,7 @@
           height={purpleZone.height}
           {lastCardDraw}
           clickedCard={clickedCard}
+          on:close={handleCardClose}
           style="position: absolute; left: {purpleZone.x}px; top: {purpleZone.y}px; width: {purpleZone.width}px; height: {purpleZone.height}px; z-index: 20;"
           role="region"
           aria-label="Last card drawn display"

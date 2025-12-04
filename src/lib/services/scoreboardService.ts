@@ -4,6 +4,7 @@ import type { ScoreboardState, SortColumn, SortOrder } from '../models/Scoreboar
 import type { CardDropEvent } from '../models/CardDropEvent.js';
 import type { SessionDropHistory } from '../models/SessionDropHistory.js';
 import { tierStore } from '../stores/tierStore.js';
+import { scoreboardStore } from '../stores/scoreboardStore.js';
 
 /**
  * Service for scoreboard business logic, drop tracking, and statistics aggregation.
@@ -11,8 +12,9 @@ import { tierStore } from '../stores/tierStore.js';
 export class ScoreboardService {
   private history: SessionDropHistory;
   private state: ScoreboardState;
-  private updateDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly DEBOUNCE_DELAY = 100; // 100ms debounce for rapid drops
+  private updateThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingUpdate = false;
+  private readonly THROTTLE_DELAY = 100; // 100ms throttle for rapid drops
 
   constructor() {
     this.history = this.createEmptyHistory();
@@ -32,7 +34,7 @@ export class ScoreboardService {
   /**
    * Track a card drop event.
    * Called when a card is dropped (from gameStateService.openDeck()).
-   * Uses debouncing for rapid card drops to improve performance.
+   * Uses throttling for rapid card drops to improve performance while still updating incrementally.
    * @param cardDrawResult - The card draw result from gameStateService
    */
   trackDrop(cardDrawResult: CardDrawResult): void {
@@ -70,16 +72,22 @@ export class ScoreboardService {
       });
     }
     
-    // Debounce rapid updates for performance
-    if (this.updateDebounceTimer) {
-      clearTimeout(this.updateDebounceTimer);
-    }
+    // Throttle rapid updates for performance while still updating incrementally
+    // Mark that we have a pending update
+    this.pendingUpdate = true;
     
-    this.updateDebounceTimer = setTimeout(() => {
-      this.updateAggregatedStats();
-      this.state.lastUpdateTimestamp = Date.now();
-      this.updateDebounceTimer = null;
-    }, this.DEBOUNCE_DELAY);
+    // If no throttle timer is running, start one
+    if (!this.updateThrottleTimer) {
+      this.updateThrottleTimer = setTimeout(() => {
+        this.updateAggregatedStats();
+        this.state.lastUpdateTimestamp = Date.now();
+        this.updateThrottleTimer = null;
+        this.pendingUpdate = false;
+        // Notify store to trigger reactive updates in components
+        scoreboardStore.refresh();
+      }, this.THROTTLE_DELAY);
+    }
+    // If timer is already running, it will pick up the pending update when it fires
   }
 
   /**

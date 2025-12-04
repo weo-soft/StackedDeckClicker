@@ -8,6 +8,7 @@ import { resolvePath } from '../utils/paths.js';
 
 const MAX_VISIBLE_CARDS = 150;
 const CARD_REMOVE_AGE = 35000; // Remove cards after 35 seconds
+const YELLOW_ZONE_MAX_CARDS = 30; // Maximum cards displayed in yellow zone
 
 /**
  * Scene manager for canvas rendering.
@@ -298,9 +299,24 @@ export class Scene {
       this.repositionNearbyLabels(animation, labelWidth, labelHeight);
     }
     
+    // Cull oldest card if we're at the yellow zone limit (30 cards)
+    if (this.cards.length >= YELLOW_ZONE_MAX_CARDS) {
+      // Find the oldest card (highest age)
+      let oldestIndex = 0;
+      let oldestAge = this.cards[0].age;
+      for (let i = 1; i < this.cards.length; i++) {
+        if (this.cards[i].age > oldestAge) {
+          oldestAge = this.cards[i].age;
+          oldestIndex = i;
+        }
+      }
+      // Remove the oldest card
+      this.cards.splice(oldestIndex, 1);
+    }
+    
     this.cards.push(animation);
 
-    // Remove oldest cards if we exceed the limit
+    // Remove oldest cards if we exceed the global limit
     if (this.cards.length > MAX_VISIBLE_CARDS) {
       // Sort by age and remove oldest
       this.cards.sort((a, b) => b.age - a.age);

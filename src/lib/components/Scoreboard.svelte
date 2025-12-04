@@ -12,10 +12,11 @@
    * 
    * @component
    */
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { scoreboardStore } from '../stores/scoreboardStore.js';
   import { tierStore } from '../stores/tierStore.js';
   import type { ScoreboardEntry, SortColumn } from '../models/ScoreboardState.js';
+  import CardTooltip from './CardTooltip.svelte';
 
   let entries: ScoreboardEntry[] = [];
   let includeHiddenCards = false;
@@ -25,9 +26,32 @@
   let highlightedCard: string | null = null;
   let previousEntryCount = 0;
   let isCollapsed = false;
+  
+  // Tooltip state
+  let hoveredEntry: ScoreboardEntry | null = null;
+  let tooltipX = 0;
+  let tooltipY = 0;
+  let scoreboardRight = 0; // Right edge of scoreboard for fallback positioning
+  let scoreboardElement: HTMLDivElement;
+  let hoveredRowElement: HTMLTableRowElement | null = null;
 
   onMount(() => {
     refresh();
+    
+    // Update tooltip position on scroll and resize
+    const handleScrollOrResize = () => {
+      if (hoveredEntry) {
+        updateTooltipPosition();
+      }
+    };
+    
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
   });
 
   function refresh() {
@@ -77,6 +101,39 @@
     return value.toFixed(2);
   }
 
+
+  function handleRowMouseLeave() {
+    hoveredEntry = null;
+    hoveredRowElement = null;
+  }
+
+  function updateTooltipPosition() {
+    if (!hoveredRowElement || !scoreboardElement) {
+      // If elements aren't ready, set default position to prevent showing in middle
+      tooltipX = 0;
+      tooltipY = 0;
+      return;
+    }
+    
+    const scoreboardRect = scoreboardElement.getBoundingClientRect();
+    const rowRect = hoveredRowElement.getBoundingClientRect();
+    const padding = 10;
+    
+    // With transform: translate(-100%, -50%), x is where the RIGHT edge should be
+    // So position tooltip so its right edge is at scoreboard left - padding
+    tooltipX = scoreboardRect.left - padding;
+    tooltipY = rowRect.top + rowRect.height / 2;
+    scoreboardRight = scoreboardRect.right;
+  }
+
+  // Update tooltip position when hovered entry changes or elements change
+  $: if (hoveredEntry && hoveredRowElement && scoreboardElement) {
+    // Use tick to ensure DOM is updated before calculating position
+    tick().then(() => {
+      updateTooltipPosition();
+    });
+  }
+
   // Subscribe to scoreboard store changes
   scoreboardStore.subscribe(() => {
     refresh();
@@ -89,7 +146,7 @@
   });
 </script>
 
-<div class="scoreboard">
+<div class="scoreboard" bind:this={scoreboardElement}>
   <div class="scoreboard-header">
     <div class="header-left">
       <button
@@ -172,7 +229,15 @@
       </thead>
       <tbody>
         {#each entries as entry (entry.cardName)}
-          <tr class:highlighted={highlightedCard === entry.cardName}>
+          <tr 
+            class:highlighted={highlightedCard === entry.cardName}
+            on:mouseenter={(e) => {
+              hoveredRowElement = e.currentTarget;
+              hoveredEntry = entry;
+              // Position will be calculated by updateTooltipPosition via reactive statement
+            }}
+            on:mouseleave={handleRowMouseLeave}
+          >
             <td title={entry.cardName}>{entry.cardName}</td>
             <td>{entry.dropCount}</td>
             <td>{formatNumber(entry.cardValue)}</td>
@@ -182,6 +247,16 @@
       </tbody>
     </table>
     {/if}
+  {/if}
+  
+  {#if hoveredEntry && hoveredRowElement && scoreboardElement && tooltipX !== 0 && tooltipY !== 0}
+    <CardTooltip 
+      cardName={hoveredEntry.cardName} 
+      cardValue={hoveredEntry.cardValue}
+      x={tooltipX}
+      y={tooltipY}
+      scoreboardRight={scoreboardRight}
+    />
   {/if}
 </div>
 

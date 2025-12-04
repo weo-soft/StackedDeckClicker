@@ -19,6 +19,14 @@
   let isProcessing = false;
   let lastDeckOpenTime = 0;
   const MIN_CLICK_INTERVAL = 100; // Minimum 100ms between deck opens
+  
+  // Hold-to-repeat state
+  let holdTimeout: ReturnType<typeof setTimeout> | null = null;
+  let repeatInterval: ReturnType<typeof setInterval> | null = null;
+  let mouseDownTime = 0; // Track when mousedown happened to prevent double-triggering
+  let HOLD_DEBOUNCE_DELAY = 1000; // 1 second debounce before starting repeat (configurable)
+  let REPEAT_INTERVAL = 500; // 0.5 seconds between deck opens (configurable)
+  const CLICK_IGNORE_WINDOW = 200; // Ignore click events within 200ms of mousedown
 
   // Grid dimensions: 8 columns x 6 rows = 48 cells
   // If 6 rows doesn't fit, we'll adjust to 5 rows (40 cells)
@@ -50,35 +58,97 @@
     }
   }
   
+  // Load hold-to-repeat settings from localStorage
+  function loadHoldToRepeatSettings() {
+    if (typeof window !== 'undefined') {
+      const savedFrequency = localStorage.getItem('debugDropFrequency');
+      const savedDelay = localStorage.getItem('debugStartingDelay');
+      
+      if (savedFrequency !== null) {
+        REPEAT_INTERVAL = parseInt(savedFrequency, 10);
+      }
+      if (savedDelay !== null) {
+        HOLD_DEBOUNCE_DELAY = parseInt(savedDelay, 10);
+      }
+    }
+  }
+
   // Check on mount and listen for changes
   onMount(() => {
     updateInfiniteDecksState();
+    loadHoldToRepeatSettings();
     
     // Listen for custom event from debug menu
     const handleInfiniteDecksChanged = (event: CustomEvent) => {
       infiniteDecksEnabled = event.detail.enabled;
     };
     
+    // Listen for hold-to-repeat settings changes
+    const handleHoldToRepeatSettingsChanged = (event: CustomEvent) => {
+      if (event.detail.dropFrequency !== undefined) {
+        REPEAT_INTERVAL = event.detail.dropFrequency;
+      }
+      if (event.detail.startingDelay !== undefined) {
+        HOLD_DEBOUNCE_DELAY = event.detail.startingDelay;
+      }
+      // If auto-repeat is currently active, restart it with new settings
+      if (repeatInterval) {
+        stopAutoRepeat();
+        // Restart with new settings if still holding (this would require tracking hold state)
+        // For simplicity, we'll just update the values and let the next hold restart
+      }
+    };
+    
     if (typeof window !== 'undefined') {
       window.addEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+      window.addEventListener('holdToRepeatSettingsChanged', handleHoldToRepeatSettingsChanged as EventListener);
       
       // Also poll as fallback (in case event doesn't fire)
       const storageCheckInterval = window.setInterval(() => {
         updateInfiniteDecksState();
+        loadHoldToRepeatSettings();
       }, 200);
       
       return () => {
         window.removeEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+        window.removeEventListener('holdToRepeatSettingsChanged', handleHoldToRepeatSettingsChanged as EventListener);
         window.clearInterval(storageCheckInterval);
+        // Clean up any pending timers
+        stopAutoRepeat();
       };
     }
   });
+  
+  // Clean up timers on destroy
+  onDestroy(() => {
+    stopAutoRepeat();
+  });
 
   function handleDeckOpen(event: MouseEvent | KeyboardEvent) {
-    // Prevent rapid clicking/race conditions
+    // If this is a click event that happened shortly after mousedown, ignore it (already handled by mousedown)
     const now = Date.now();
-    if (isProcessing || (now - lastDeckOpenTime) < MIN_CLICK_INTERVAL) {
+    if (event.type === 'click' && mouseDownTime > 0 && (now - mouseDownTime) < CLICK_IGNORE_WINDOW) {
+      mouseDownTime = 0; // Reset after ignoring
       return;
+    }
+    
+    // Check if this is an auto-repeat call (from interval)
+    const isAutoRepeat = repeatInterval !== null;
+    
+    // For auto-repeat calls, use REPEAT_INTERVAL as the minimum interval
+    // For manual clicks, use MIN_CLICK_INTERVAL
+    const minInterval = isAutoRepeat ? Math.max(10, REPEAT_INTERVAL - 10) : MIN_CLICK_INTERVAL;
+    
+    // Prevent rapid clicking/race conditions
+    // For auto-repeat, only check if we're processing (allow faster than MIN_CLICK_INTERVAL)
+    if (isAutoRepeat) {
+      if (isProcessing) {
+        return;
+      }
+    } else {
+      if (isProcessing || (now - lastDeckOpenTime) < minInterval) {
+        return;
+      }
     }
     
     // Check deck count only if infinite decks is disabled
@@ -95,13 +165,92 @@
       } catch (error) {
         console.error('Error opening deck:', error);
       } finally {
+        // For auto-repeat, use a very short processing time since interval controls timing
+        // For manual clicks, use MIN_CLICK_INTERVAL
+        const processingTime = isAutoRepeat ? Math.min(50, Math.max(10, REPEAT_INTERVAL * 0.8)) : MIN_CLICK_INTERVAL;
         setTimeout(() => {
           isProcessing = false;
-        }, MIN_CLICK_INTERVAL);
+        }, processingTime);
       }
     } else {
       isProcessing = false;
     }
+  }
+  
+  function stopAutoRepeat() {
+    if (holdTimeout) {
+      clearTimeout(holdTimeout);
+      holdTimeout = null;
+    }
+    if (repeatInterval) {
+      clearInterval(repeatInterval);
+      repeatInterval = null;
+    }
+    // Reset mouseDownTime after a delay to allow click event to check it
+    setTimeout(() => {
+      mouseDownTime = 0;
+    }, CLICK_IGNORE_WINDOW);
+  }
+  
+  function handleMouseDown(event: MouseEvent) {
+    // Only handle left mouse button
+    if (event.button !== 0) {
+      return;
+    }
+    
+    // Check if button is disabled
+    const isDisabled = !infiniteDecksEnabled && (!gameState || gameState.decks <= 0) || isProcessing;
+    if (isDisabled) {
+      return;
+    }
+    
+    // Stop any existing auto-repeat
+    stopAutoRepeat();
+    
+    // Record when mousedown happened
+    mouseDownTime = Date.now();
+    
+    // Trigger initial click immediately
+    handleDeckOpen(event);
+    
+    // Set up debounced auto-repeat
+    holdTimeout = setTimeout(() => {
+      holdTimeout = null;
+      
+      // Check if still enabled before starting repeat
+      const stillEnabled = infiniteDecksEnabled || (gameState && gameState.decks > 0);
+      if (!stillEnabled) {
+        mouseDownTime = 0;
+        return;
+      }
+      
+      // Start repeating every 0.5 seconds
+      repeatInterval = setInterval(() => {
+        // Check if still enabled before each repeat
+        const stillEnabled = infiniteDecksEnabled || (gameState && gameState.decks > 0);
+        if (!stillEnabled || isProcessing) {
+          stopAutoRepeat();
+          return;
+        }
+        
+        // Create a synthetic event for the repeat call
+        const syntheticEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+        handleDeckOpen(syntheticEvent);
+      }, REPEAT_INTERVAL);
+    }, HOLD_DEBOUNCE_DELAY);
+  }
+  
+  function handleMouseUp(event: MouseEvent) {
+    // Only handle left mouse button
+    if (event.button !== 0) {
+      return;
+    }
+    
+    stopAutoRepeat();
+  }
+  
+  function handleMouseLeave() {
+    stopAutoRepeat();
   }
 
   async function handlePurchaseDecks() {
@@ -196,6 +345,9 @@
               class:disabled={isDisabled}
               style="background-color: #2a2a2a !important; border: 1px solid #444 !important;"
               on:click={handleDeckOpen}
+              on:mousedown={handleMouseDown}
+              on:mouseup={handleMouseUp}
+              on:mouseleave={handleMouseLeave}
               on:keydown={(e) => handleKeyDown(e, 'open')}
               role="button"
               tabindex={isDisabled ? -1 : 0}

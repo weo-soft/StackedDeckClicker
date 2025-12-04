@@ -1,14 +1,47 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import type { GameState } from '../models/GameState.js';
   import type { Upgrade } from '../models/Upgrade.js';
   import { upgradeService } from '../services/upgradeService.js';
   import { formatNumber } from '../utils/numberFormat.js';
+  import { gameStateService } from '../services/gameStateService.js';
 
   export let width: number;
   export let height: number;
   export let gameState: GameState;
   export let activeBuffs: Array<{ name: string; description: string; duration?: number }> = [];
   export let style: string = '';
+
+  // Check if infinite decks is enabled (via game mode or debug setting)
+  let infiniteDecksEnabled = false;
+
+  // Update infinite decks state
+  function updateInfiniteDecksState() {
+    infiniteDecksEnabled = gameStateService.isInfiniteDecksEnabled();
+  }
+
+  onMount(() => {
+    updateInfiniteDecksState();
+    
+    // Listen for custom event from debug menu
+    const handleInfiniteDecksChanged = (event: CustomEvent) => {
+      infiniteDecksEnabled = event.detail.enabled;
+    };
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+      
+      // Also poll as fallback (in case event doesn't fire)
+      const storageCheckInterval = window.setInterval(() => {
+        updateInfiniteDecksState();
+      }, 200);
+      
+      return () => {
+        window.removeEventListener('infiniteDecksChanged', handleInfiniteDecksChanged as EventListener);
+        window.clearInterval(storageCheckInterval);
+      };
+    }
+  });
 
   // Extract active upgrades from game state reactively
   $: activeUpgrades = Array.from(gameState.upgrades.upgrades.values())
@@ -41,7 +74,7 @@
       <div class="stats-inline">
         <span class="stat-item-inline">
           <span class="stat-label-inline">Decks:</span>
-          <span class="stat-value-inline">{gameState.decks}</span>
+          <span class="stat-value-inline">{infiniteDecksEnabled ? '∞' : gameState.decks}</span>
         </span>
         {#if totalCardsCollected > 0}
           <span class="stat-item-inline">

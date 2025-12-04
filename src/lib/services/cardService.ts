@@ -91,8 +91,10 @@ export class CardService {
 
     // Convert percentage to multiplier range
     // The effect scales from -rarityPercentage% for lowest value to +rarityPercentage% for highest value
+    // Cap minMultiplier at a small positive value to prevent discontinuity at 100%+
+    // This ensures smooth scaling even at high percentages
     const maxMultiplier = 1 + (rarityPercentage / 100);
-    const minMultiplier = 1 - (rarityPercentage / 100);
+    const minMultiplier = Math.max(0.01, 1 - (rarityPercentage / 100));
 
     const modifiedCards = cardPool.cards.map((card) => {
       // Normalize card value to 0-1 range

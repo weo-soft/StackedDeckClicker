@@ -128,26 +128,25 @@
 
   async function handleModeChangeConfirm() {
     try {
+      errorMessage = null;
+      
       // Clear game mode to trigger mode selection screen
       gameModeService.clearGameMode();
       
-      // Clear game state
+      // Clear all storage (game state and tier configurations)
+      // Note: storageService.clearAll() clears the entire localforage database,
+      // which includes both game state and tier configurations
       await storageService.clearAll();
       
-      // Close confirmation
+      // Close confirmation dialog before reload
       showModeChangeConfirmation = false;
       
-      // Show mode selection screen
-      showModeSelection = true;
-      isLoading = false;
-      
-      // Reset game state store
-      if ($gameState) {
-        gameState.set(null);
-      }
+      // Reload the page to fully reinitialize everything
+      // This ensures all services and stores are properly reset
+      window.location.reload();
     } catch (error) {
-      console.error('Failed to return to mode selection:', error);
-      errorMessage = 'Failed to return to mode selection.';
+      errorMessage = error instanceof Error ? error.message : 'Failed to return to mode selection';
+      console.error('Mode change error:', error);
       showModeChangeConfirmation = false;
     }
   }
@@ -180,13 +179,10 @@
             lastCardDraw = results[results.length - 1];
             
             // Track all drops in scoreboard
+            // Store will be refreshed automatically after debounced stats update
             results.forEach((result) => {
               scoreboardService.trackDrop(result);
             });
-            // Refresh store after debounce delay to ensure UI updates
-            setTimeout(() => {
-              scoreboardStore.refresh();
-            }, 150); // Slightly longer than DEBOUNCE_DELAY (100ms) to ensure stats are updated
             
             // Add all cards to ambient scene zone with slight delay for visual effect
             if (ambientSceneZone) {
@@ -215,11 +211,8 @@
       const result = await gameStateService.openDeck();
       
       // Track drop in scoreboard (always track, regardless of visibility)
+      // Store will be refreshed automatically after debounced stats update
       scoreboardService.trackDrop(result);
-      // Refresh store after debounce delay to ensure UI updates
-      setTimeout(() => {
-        scoreboardStore.refresh();
-      }, 150); // Slightly longer than DEBOUNCE_DELAY (100ms) to ensure stats are updated
       
       // Check if card should be displayed based on tier
       const { tierStore } = await import('$lib/stores/tierStore.js');

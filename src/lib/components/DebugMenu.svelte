@@ -53,6 +53,80 @@
     }
   }
 
+  // Hold-to-repeat settings state
+  const DEFAULT_DROP_FREQUENCY = 500; // milliseconds
+  const DEFAULT_STARTING_DELAY = 1000; // milliseconds
+  let dropFrequency: number = DEFAULT_DROP_FREQUENCY;
+  let startingDelay: number = DEFAULT_STARTING_DELAY;
+  let isDraggingDropFrequency: boolean = false;
+  let isDraggingStartingDelay: boolean = false;
+
+  function loadHoldToRepeatSettings() {
+    if (typeof window !== 'undefined') {
+      const savedFrequency = localStorage.getItem('debugDropFrequency');
+      const savedDelay = localStorage.getItem('debugStartingDelay');
+      
+      if (savedFrequency !== null) {
+        dropFrequency = parseInt(savedFrequency, 10);
+      }
+      if (savedDelay !== null) {
+        startingDelay = parseInt(savedDelay, 10);
+      }
+      
+      // Dispatch initial values
+      dispatchHoldToRepeatSettings();
+    }
+  }
+
+  function saveHoldToRepeatSettings() {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('debugDropFrequency', dropFrequency.toString());
+      localStorage.setItem('debugStartingDelay', startingDelay.toString());
+      dispatchHoldToRepeatSettings();
+    }
+  }
+
+  function dispatchHoldToRepeatSettings() {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('holdToRepeatSettingsChanged', {
+        detail: {
+          dropFrequency,
+          startingDelay
+        }
+      }));
+    }
+  }
+
+  function handleDropFrequencyInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    dropFrequency = parseInt(target.value, 10);
+    isDraggingDropFrequency = true;
+  }
+
+  function handleDropFrequencyChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    dropFrequency = parseInt(target.value, 10);
+    saveHoldToRepeatSettings();
+    setTimeout(() => {
+      isDraggingDropFrequency = false;
+    }, 100);
+  }
+
+  function handleStartingDelayInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    startingDelay = parseInt(target.value, 10);
+    isDraggingStartingDelay = true;
+  }
+
+  function handleStartingDelayChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    startingDelay = parseInt(target.value, 10);
+    saveHoldToRepeatSettings();
+    setTimeout(() => {
+      isDraggingStartingDelay = false;
+    }, 100);
+  }
+
   // Upgrades section state
   let raritySliderValue: number = 0;
   let isDraggingRaritySlider: boolean = false;
@@ -216,6 +290,9 @@
       
       // Initialize infinite decks from service
       infiniteDecksEnabled = gameStateService.isInfiniteDecksEnabled();
+      
+      // Load hold-to-repeat settings
+      loadHoldToRepeatSettings();
     }
     
     // Add event listener for F12 shortcut
@@ -377,6 +454,67 @@
             />
             <div class="slider-hint">
               Debug: Adjust lucky drop level. Level N = (N+1) rolls, best card selected. Check console for roll details.
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="debug-section">
+          <h3 class="section-header">Hold-to-Repeat Settings</h3>
+          
+          <!-- Drop Frequency Slider -->
+          <div class="slider-container">
+            <div class="slider-header">
+              <label for="drop-frequency-slider" class="slider-label">
+                <span class="slider-label-text">Drop Frequency:</span>
+                <span class="slider-value" aria-live="polite">{dropFrequency}ms</span>
+              </label>
+            </div>
+            <input
+              id="drop-frequency-slider"
+              type="range"
+              min="50"
+              max="2000"
+              step="50"
+              value={dropFrequency}
+              on:input={handleDropFrequencyInput}
+              on:change={handleDropFrequencyChange}
+              class="slider"
+              aria-label="Adjust drop frequency for hold-to-repeat"
+              aria-valuemin="50"
+              aria-valuemax="2000"
+              aria-valuenow={dropFrequency}
+            />
+            <div class="slider-hint">
+              Time between deck opens when holding the button (50-2000ms). Default: 500ms.
+            </div>
+          </div>
+
+          <!-- Starting Delay Slider -->
+          <div class="slider-container">
+            <div class="slider-header">
+              <label for="starting-delay-slider" class="slider-label">
+                <span class="slider-label-text">Starting Delay:</span>
+                <span class="slider-value" aria-live="polite">{startingDelay}ms</span>
+              </label>
+            </div>
+            <input
+              id="starting-delay-slider"
+              type="range"
+              min="0"
+              max="3000"
+              step="100"
+              value={startingDelay}
+              on:input={handleStartingDelayInput}
+              on:change={handleStartingDelayChange}
+              class="slider"
+              aria-label="Adjust starting delay before auto-repeat begins"
+              aria-valuemin="0"
+              aria-valuemax="3000"
+              aria-valuenow={startingDelay}
+            />
+            <div class="slider-hint">
+              Delay before auto-repeat starts when holding the button (0-3000ms). Default: 1000ms.
             </div>
           </div>
         </div>
