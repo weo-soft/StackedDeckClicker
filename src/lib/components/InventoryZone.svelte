@@ -3,6 +3,9 @@
   import type { GameState } from '../models/GameState.js';
   import { resolvePath } from '../utils/paths.js';
   import { gameStateService } from '../services/gameStateService.js';
+  import { gameModeService } from '../services/gameModeService.js';
+  import { InsufficientResourcesError, ERROR_MESSAGES } from '../utils/errors.js';
+  import { formatNumber } from '../utils/numberFormat.js';
 
   export let width: number;
   export let height: number;
@@ -25,9 +28,20 @@
 
   // Positions in grid (0-indexed)
   const OPEN_DECK_START = 0; // Top-left, single cell
+  const PURCHASE_DECKS_POS = 1; // Next to open deck button
 
   // Check if infinite decks is enabled
   let infiniteDecksEnabled = false;
+  
+  // Deck purchase state (for Ruthless mode)
+  let purchaseError: string | null = null;
+  let isPurchasing = false;
+  const DECK_PURCHASE_COST = 10; // 10 chaos per deck
+  const DECK_PURCHASE_COUNT = 1; // Buy 1 deck at a time
+  
+  // Check if current mode is Ruthless
+  $: isRuthlessMode = gameModeService.getCurrentMode()?.id === 'ruthless';
+  $: canPurchaseDecks = isRuthlessMode && gameState && gameState.score >= DECK_PURCHASE_COST;
   
   // Update infinite decks state
   function updateInfiniteDecksState() {
@@ -90,11 +104,35 @@
     }
   }
 
-  function handleKeyDown(event: KeyboardEvent, action: 'open') {
+  async function handlePurchaseDecks() {
+    if (isPurchasing || !canPurchaseDecks) {
+      return;
+    }
+
+    isPurchasing = true;
+    purchaseError = null;
+
+    try {
+      await gameStateService.purchaseDecks(DECK_PURCHASE_COST, DECK_PURCHASE_COUNT);
+    } catch (error) {
+      if (error instanceof InsufficientResourcesError) {
+        purchaseError = error.message;
+      } else {
+        purchaseError = 'Failed to purchase decks.';
+        console.error('Deck purchase error:', error);
+      }
+    } finally {
+      isPurchasing = false;
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent, action: 'open' | 'purchase') {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (action === 'open') {
         handleDeckOpen(event);
+      } else if (action === 'purchase') {
+        handlePurchaseDecks();
       }
     }
   }
@@ -112,13 +150,21 @@
     return cellIndex === OPEN_DECK_START;
   }
 
+  function isPurchaseDecksCell(cellIndex: number): boolean {
+    // Purchase Decks button is at position 1 (next to open deck), only in Ruthless mode
+    return isRuthlessMode && cellIndex === PURCHASE_DECKS_POS;
+  }
+
   function shouldRenderCell(cellIndex: number): boolean {
     // Only render if it's the start of a multi-cell element or a single-cell element
     if (isOpenDeckCell(cellIndex)) {
       return cellIndex === OPEN_DECK_START; // Only render at start position
     }
-    // For empty cells, check if they're not part of the Open Deck button
-    return !isOpenDeckCell(cellIndex);
+    if (isPurchaseDecksCell(cellIndex)) {
+      return cellIndex === PURCHASE_DECKS_POS; // Only render at purchase position
+    }
+    // For empty cells, check if they're not part of any button
+    return !isOpenDeckCell(cellIndex) && !isPurchaseDecksCell(cellIndex);
   }
 </script>
 
@@ -129,10 +175,17 @@
   aria-label="Inventory zone for deck opening"
 >
   <div class="zone-content">
+    {#if purchaseError}
+      <div class="purchase-error" role="alert">
+        {purchaseError}
+      </div>
+    {/if}
     <div class="inventory-grid">
       {#each Array(TOTAL_CELLS) as _, cellIndex}
         {@const isOpenDeck = isOpenDeckCell(cellIndex)}
+        {@const isPurchaseDecks = isPurchaseDecksCell(cellIndex)}
         {@const isDisabled = (isOpenDeck && (!infiniteDecksEnabled && (!gameState || gameState.decks <= 0) || isProcessing))}
+        {@const purchaseDisabled = (isPurchaseDecks && (!canPurchaseDecks || isPurchasing))}
         {@const shouldRender = shouldRenderCell(cellIndex)}
         
         {#if shouldRender}
@@ -152,6 +205,25 @@
               <div class="open-deck-content">
                 <img src={deckIconUrl} alt="Deck" class="deck-icon" />
                 <span class="deck-count-badge">{infiniteDecksEnabled ? '∞' : (gameState?.decks || 0)}</span>
+              </div>
+            </div>
+          {:else if isPurchaseDecks && cellIndex === PURCHASE_DECKS_POS}
+            <!-- Purchase Decks Button (Ruthless mode only) -->
+            <div
+              class="grid-cell purchase-decks-button"
+              class:disabled={purchaseDisabled}
+              style="background-color: #3a2a1a !important; border: 1px solid #666 !important;"
+              on:click={handlePurchaseDecks}
+              on:keydown={(e) => handleKeyDown(e, 'purchase')}
+              role="button"
+              tabindex={purchaseDisabled ? -1 : 0}
+              aria-label="Purchase deck for {DECK_PURCHASE_COST} chaos"
+              aria-disabled={purchaseDisabled}
+            >
+              <div class="purchase-decks-content">
+                <span class="purchase-icon">💰</span>
+                <span class="purchase-label">Buy Deck</span>
+                <span class="purchase-cost">{DECK_PURCHASE_COST} Chaos</span>
               </div>
             </div>
           {:else}
@@ -338,6 +410,66 @@
     outline: 2px solid #ffa500;
     outline-offset: -2px;
     z-index: 10;
+  }
+
+  .purchase-error {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #ff6b6b;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .purchase-decks-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+  }
+
+  .purchase-decks-button:hover:not(.disabled) {
+    background-color: #4a3a2a !important;
+    transform: scale(1.02);
+  }
+
+  .purchase-decks-button:focus:not(.disabled) {
+    outline: 2px solid #4a9eff;
+    outline-offset: -2px;
+  }
+
+  .purchase-decks-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .purchase-decks-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+  }
+
+  .purchase-icon {
+    font-size: 1.5rem;
+  }
+
+  .purchase-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .purchase-cost {
+    font-size: 0.7rem;
+    color: #ffd700;
+    font-weight: bold;
   }
 
   .add-decks-label {

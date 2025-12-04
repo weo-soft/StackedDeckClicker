@@ -1,5 +1,6 @@
 <script lang="ts">
   import UpgradeShop from './UpgradeShop.svelte';
+  import { gameModeService } from '../services/gameModeService.js';
   import type { GameState } from '../models/GameState.js';
   import type { UpgradeType } from '../models/types.js';
   import { formatNumber } from '../utils/numberFormat.js';
@@ -11,6 +12,7 @@
   export let style: string = '';
 
   $: formattedScore = formatNumber(gameState?.score || 0);
+  $: shopEnabled = gameModeService.isShopEnabled();
 
   function handleUpgradePurchase(upgradeType: UpgradeType) {
     if (onUpgradePurchase) {
@@ -19,6 +21,7 @@
   }
 </script>
 
+{#if shopEnabled}
 <div
   class="upgrade-store-zone"
   style={style || `width: ${width}px; height: ${height}px;`}
@@ -38,6 +41,7 @@
     </div>
   </div>
 </div>
+{/if}
 
 <style>
   .upgrade-store-zone {
