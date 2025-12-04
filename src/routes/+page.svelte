@@ -10,14 +10,17 @@
   import DataVersionOverlay from '$lib/components/DataVersionOverlay.svelte';
   import DebugMenu from '$lib/components/DebugMenu.svelte';
   import Scoreboard from '$lib/components/Scoreboard.svelte';
+  import GameModeSelection from '$lib/components/GameModeSelection.svelte';
   import { audioService } from '$lib/audio/audioManager.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '$lib/utils/errors.js';
   import { createDefaultGameState } from '$lib/utils/defaultGameState.js';
   import { storageService } from '$lib/services/storageService.js';
   import { scoreboardService } from '$lib/services/scoreboardService.js';
   import { scoreboardStore } from '$lib/stores/scoreboardStore.js';
+  import { gameModeService } from '$lib/services/gameModeService.js';
   import type { CardDrawResult } from '$lib/models/CardDrawResult.js';
   import type { OfflineProgressionResult } from '$lib/models/OfflineProgressionResult.js';
+  import type { GameModeId } from '$lib/models/GameMode.js';
 
   let errorMessage: string | null = null;
   let lastCardDraw: CardDrawResult | null = null;
@@ -31,6 +34,8 @@
   let showDataVersion = false;
   let activeModal: 'settings' | 'management' | 'dataVersion' | null = null;
   let showResetConfirmation = false;
+  let showModeSelection = false;
+  let showModeChangeConfirmation = false;
 
   // Use reactive statement for store
   $: currentState = $gameState;
@@ -44,35 +49,53 @@
   onMount(async () => {
     console.log('onMount called - starting initialization');
     
-    // Initialize scoreboard service
-    scoreboardService.initialize();
+    // Check for saved game mode
+    const savedMode = gameModeService.getCurrentModeId();
     
-    // Preload audio
-    try {
-      await audioService.preloadAudio();
-    } catch (error) {
-      console.warn('Audio preload failed:', error);
+    if (!savedMode) {
+      // No mode selected - show mode selection screen
+      showModeSelection = true;
+      isLoading = false;
+      return;
     }
     
-    // Initialize immediately and handle errors
-    gameStateService.initialize()
-      .then(() => {
-        console.log('Initialization completed successfully');
-        // Check for offline progression
-        offlineProgression = gameStateService.getLastOfflineProgression();
-        isLoading = false;
-      })
-      .catch((error) => {
-        console.error('Initialization failed:', error);
-        errorMessage = `Failed to load game: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        
-        // Set default state on error
-        if (!$gameState) {
-          const defaultState = createDefaultGameState();
-          gameState.set(defaultState);
-        }
-        isLoading = false;
-      });
+    // Mode is selected - proceed with initialization
+    await initializeGame(savedMode);
+  });
+
+  async function initializeGame(modeId: GameModeId) {
+    try {
+      // Apply mode configuration
+      gameModeService.applyModeConfiguration(modeId);
+      
+      // Initialize scoreboard service
+      scoreboardService.initialize();
+      
+      // Preload audio
+      try {
+        await audioService.preloadAudio();
+      } catch (error) {
+        console.warn('Audio preload failed:', error);
+      }
+      
+      // Initialize game state
+      await gameStateService.initialize();
+      console.log('Initialization completed successfully');
+      
+      // Check for offline progression
+      offlineProgression = gameStateService.getLastOfflineProgression();
+      isLoading = false;
+    } catch (error) {
+      console.error('Initialization failed:', error);
+      errorMessage = `Failed to load game: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      
+      // Set default state on error
+      if (!$gameState) {
+        const defaultState = createDefaultGameState();
+        gameState.set(defaultState);
+      }
+      isLoading = false;
+    }
 
     // Fallback timeout - ensure we show something after 2 seconds
     setTimeout(() => {
@@ -85,7 +108,53 @@
         isLoading = false;
       }
     }, 2000);
-  });
+  }
+
+  async function handleModeSelected(event: CustomEvent<{ modeId: GameModeId }>) {
+    const modeId = event.detail.modeId;
+    showModeSelection = false;
+    isLoading = true;
+    await initializeGame(modeId);
+  }
+
+  function handleModeCancelled() {
+    // Mode selection is required - don't allow cancellation on first visit
+    // This handler is here for future mode change functionality
+  }
+
+  function handleReturnToModeSelection() {
+    showModeChangeConfirmation = true;
+  }
+
+  async function handleModeChangeConfirm() {
+    try {
+      // Clear game mode to trigger mode selection screen
+      gameModeService.clearGameMode();
+      
+      // Clear game state
+      await storageService.clearAll();
+      
+      // Close confirmation
+      showModeChangeConfirmation = false;
+      
+      // Show mode selection screen
+      showModeSelection = true;
+      isLoading = false;
+      
+      // Reset game state store
+      if ($gameState) {
+        gameState.set(null);
+      }
+    } catch (error) {
+      console.error('Failed to return to mode selection:', error);
+      errorMessage = 'Failed to return to mode selection.';
+      showModeChangeConfirmation = false;
+    }
+  }
+
+  function handleModeChangeCancel() {
+    showModeChangeConfirmation = false;
+  }
 
   async function handleOpenDeck() {
     if (!currentState || currentState.decks <= 0) {
@@ -225,7 +294,62 @@
 </script>
 
 <main>
-  <h1>Stacked Deck Clicker</h1>
+  <div class="header-controls">
+    <h1>Stacked Deck Clicker</h1>
+    {#if currentState && !showModeSelection}
+      <button
+        class="change-mode-button"
+        on:click={handleReturnToModeSelection}
+        aria-label="Return to game mode selection"
+        title="Change game mode"
+      >
+        Change Mode
+      </button>
+    {/if}
+  </div>
+  
+  <!-- Mode Change Confirmation Dialog -->
+  {#if showModeChangeConfirmation}
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="mode-change-title">
+      <div class="modal-content confirmation-dialog" on:click|stopPropagation>
+        <div class="modal-header">
+          <h2 id="mode-change-title">Change Game Mode</h2>
+        </div>
+        <div class="modal-body">
+          <p class="confirmation-message">
+            Changing game mode will reset all your progress (score, decks, upgrades, collection). 
+            Are you sure you want to return to mode selection?
+          </p>
+          <div class="confirmation-actions">
+            <button
+              class="btn btn-secondary"
+              on:click={handleModeChangeCancel}
+              aria-label="Cancel mode change"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-primary"
+              on:click={handleModeChangeConfirm}
+              aria-label="Confirm return to mode selection"
+            >
+              Return to Mode Selection
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+  
+  <!-- Game Mode Selection Screen -->
+  {#if showModeSelection}
+    <GameModeSelection
+      isVisible={showModeSelection}
+      isModeChange={false}
+      on:mode:selected={handleModeSelected}
+      on:mode:cancelled={handleModeCancelled}
+    />
+  {/if}
   
   {#if isLoading}
     <div class="loading-container">
@@ -233,7 +357,7 @@
       <p>Loading game...</p>
       <p class="loading-hint">If this message persists, check the browser console for errors.</p>
     </div>
-  {:else if currentState}
+  {:else if currentState && !showModeSelection}
     {#if offlineProgression}
       <OfflineProgress result={offlineProgression} />
     {/if}
@@ -677,6 +801,88 @@
 
   .reset-button:hover {
     background-color: #d32f2f;
+  }
+
+  .header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .change-mode-button {
+    padding: 0.5rem 1rem;
+    background-color: #4a9eff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .change-mode-button:hover {
+    background-color: #3a8eef;
+    transform: translateY(-1px);
+  }
+
+  .change-mode-button:focus {
+    outline: 2px solid #4a9eff;
+    outline-offset: 2px;
+  }
+
+  .confirmation-dialog {
+    max-width: 500px;
+  }
+
+  .confirmation-message {
+    color: #fff;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn:focus {
+    outline: 2px solid #4a9eff;
+    outline-offset: 2px;
+  }
+
+  .btn-primary {
+    background-color: #4a9eff;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background-color: #3a8eef;
+  }
+
+  .btn-secondary {
+    background-color: #333;
+    color: #fff;
+  }
+
+  .btn-secondary:hover {
+    background-color: #444;
   }
 
   .modal-overlay {

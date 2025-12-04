@@ -301,6 +301,51 @@ export class GameStateService {
   }
 
   /**
+   * Purchase stacked decks using chaos/score.
+   * Available only in modes that support deck purchases (e.g., Ruthless).
+   * 
+   * @param chaosCost - Amount of chaos to spend
+   * @param deckCount - Number of decks to purchase
+   * @throws InsufficientResourcesError if player doesn't have enough chaos
+   * @throws Error if deck purchases are not available in current mode
+   */
+  async purchaseDecks(chaosCost: number, deckCount: number): Promise<void> {
+    if (chaosCost <= 0 || deckCount <= 0) {
+      throw new Error('Cost and count must be positive');
+    }
+
+    // Check if current mode allows deck purchases
+    let currentMode = null;
+    try {
+      const { gameModeService } = await import('./gameModeService.js');
+      currentMode = gameModeService.getCurrentMode();
+    } catch (error) {
+      console.warn('Failed to check game mode:', error);
+    }
+
+    if (!currentMode || currentMode.id !== 'ruthless') {
+      throw new Error('Deck purchases are only available in Ruthless mode');
+    }
+
+    const state = this.getGameState();
+
+    // Validate sufficient chaos
+    if (state.score < chaosCost) {
+      throw new InsufficientResourcesError(
+        ERROR_MESSAGES.INSUFFICIENT_SCORE,
+        'INSUFFICIENT_SCORE'
+      );
+    }
+
+    // Update game state
+    await this.updateGameState((s) => ({
+      ...s,
+      score: s.score - chaosCost,
+      decks: s.decks + deckCount
+    }), true); // Immediate save for deck purchase
+  }
+
+  /**
    * Update the custom rarity percentage override.
    * @param percentage - Rarity percentage (0-10000), or undefined to clear the override
    * @param allowDebug - Allow setting even without upgrade purchased (for debugging)
@@ -429,10 +474,19 @@ export class GameStateService {
       this.infiniteDecksEnabled = localStorage.getItem('infiniteDecksEnabled') === 'true';
     }
     
+    // Get current game mode configuration
+    let modeConfig = null;
+    try {
+      const { gameModeService } = await import('./gameModeService.js');
+      modeConfig = gameModeService.getCurrentMode();
+    } catch (error) {
+      console.warn('Failed to load game mode service:', error);
+    }
+    
     // Set default state immediately so UI can render
-    this.currentState = createDefaultGameState();
+    this.currentState = createDefaultGameState(modeConfig ?? undefined);
     gameState.set(this.currentState);
-    console.log('Default state set immediately');
+    console.log('Default state set immediately', modeConfig ? `with mode: ${modeConfig.id}` : '');
     
     // Load card pool asynchronously from JSON files
     try {

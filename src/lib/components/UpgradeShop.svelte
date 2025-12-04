@@ -1,6 +1,7 @@
 <script lang="ts">
   import { upgradeService } from '../services/upgradeService.js';
   import { gameStateService } from '../services/gameStateService.js';
+  import { gameModeService } from '../services/gameModeService.js';
   import type { UpgradeInfo } from '../services/upgradeService.js';
   import type { GameState } from '../models/GameState.js';
   import { InsufficientResourcesError, ERROR_MESSAGES } from '../utils/errors.js';
@@ -24,7 +25,14 @@
         .map(([type, upgrade]) => `${type}:${upgrade.level}`)
         .join(',')
     : '';
-  $: availableUpgrades = gameState ? upgradeService.getAvailableUpgrades(gameState.upgrades) : [];
+  $: allAvailableUpgrades = gameState ? upgradeService.getAvailableUpgrades(gameState.upgrades) : [];
+  
+  // Filter upgrades based on current game mode
+  $: allowedUpgradeTypes = gameModeService.getAllowedUpgrades();
+  $: availableUpgrades = allowedUpgradeTypes.length > 0
+    ? allAvailableUpgrades.filter(upgrade => allowedUpgradeTypes.includes(upgrade.type))
+    : allAvailableUpgrades; // If no restrictions, show all
+  
   $: currentScore = gameState?.score ?? 0;
   
   // Create upgrade map by type for quick lookup
